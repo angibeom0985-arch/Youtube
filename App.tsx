@@ -1492,7 +1492,7 @@ const App: React.FC = () => {
                     {isFetchingTranscript ? "불러오는 중..." : "대본 자동 입력"}
                   </button>
                   {isFetchingDetails && (
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <div className="absolute inset-y-0 right-28 flex items-center pr-3">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
                     </div>
                   )}
