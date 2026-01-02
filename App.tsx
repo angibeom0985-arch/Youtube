@@ -51,6 +51,7 @@ import SidebarAds from "./components/SidebarAds";
 import { getStoredApiKey, saveApiKey } from "./utils/apiKeyStorage";
 import { highlightImportantText } from "./utils/textHighlight.tsx";
 import { useNavigate } from "react-router-dom";
+import { fetchTranscript } from "./services/transcriptService";
 
 const defaultCategories = [
   "썰 채널",
@@ -160,6 +161,7 @@ const App: React.FC = () => {
   const [newKeyword, setNewKeyword] = useState<string>("");
   const [userIdeaKeyword, setUserIdeaKeyword] = useState<string>("");
   const [appliedIdeaKeyword, setAppliedIdeaKeyword] = useState<string>("");
+  const [isFetchingTranscript, setIsFetchingTranscript] = useState<boolean>(false);
 
   // localStorage에서 저장된 데이터 복원
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(() => {
@@ -1330,6 +1332,23 @@ const App: React.FC = () => {
     navigate("/image", { state: { script: scriptText } });
   };
 
+  const handleFetchTranscript = async () => {
+    if (!youtubeUrl.trim()) {
+      alert("유튜브 URL을 입력해주세요.");
+      return;
+    }
+    setIsFetchingTranscript(true);
+    try {
+      const result = await fetchTranscript(youtubeUrl.trim());
+      setTranscript(result.text.trim());
+    } catch (error: any) {
+      console.error("Transcript fetch failed:", error);
+      alert(error?.message || "대본을 불러오지 못했습니다. 수동으로 입력해주세요.");
+    } finally {
+      setIsFetchingTranscript(false);
+    }
+  };
+
   const ideasTitle =
     selectedCategory === "쇼핑 리뷰"
       ? "리뷰할 제품 추천"
@@ -1465,6 +1484,13 @@ const App: React.FC = () => {
                       } as React.CSSProperties
                     }
                   />
+                  <button
+                    onClick={handleFetchTranscript}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-xs font-semibold rounded-md bg-red-600 hover:bg-red-700 text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isFetchingTranscript}
+                  >
+                    {isFetchingTranscript ? "불러오는 중..." : "대본 자동 입력"}
+                  </button>
                   {isFetchingDetails && (
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
