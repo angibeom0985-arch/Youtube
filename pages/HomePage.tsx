@@ -15,7 +15,7 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-16">
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.35em] text-red-400">
-            유튜브 스튜디오 도구
+            유튜브 팩토리
           </p>
           <h1 className="mt-4 text-4xl font-black sm:text-5xl">
             원하는 기능을 선택하세요
