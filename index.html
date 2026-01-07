@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- SEO Meta Tags -->
-    <title>유튜브 대본 분석 · 이미지 생성 통합도구</title>
+    <title>?�튜�??��?분석 · ?��?지 ?�성 ?�합?�구</title>
     <meta
       name="description"
-      content="youtube.money-hotissue.com에서 대본 분석, 챕터/이미지 프롬프트 생성, 스토리보드 이미지 제작까지 한 번에 처리하세요."
+      content="youtube.money-hotissue.com?�서 ?��?분석, 챕터/?��?지 ?�롬?�트 ?�성, ?�토리보???��?지 ?�작까�? ??번에 처리?�세??"
     />
     <meta
       name="keywords"
-      content="유튜브 대본 분석, 이미지 생성, 스토리보드, Gemini, 롱폼, AI, 유튜브 콘텐츠"
+      content="?�튜�??��?분석, ?��?지 ?�성, ?�토리보?? Gemini, 롱폼, AI, ?�튜�?콘텐�?
     />
     <meta name="author" content="youtube.money-hotissue.com" />
     <meta name="robots" content="index, follow" />
@@ -25,11 +25,11 @@
     />
     <meta
       property="og:title"
-      content="유튜브 대본 분석 · 이미지 생성 통합도구"
+      content="?�튜�??��?분석 · ?��?지 ?�성 ?�합?�구"
     />
     <meta
       property="og:description"
-      content="대본 분석과 이미지 생성을 하나의 워크플로우로 제공하는 통합 서비스입니다."
+      content="?��?분석�??��?지 ?�성???�나???�크?�로?�로 ?�공?�는 ?�합 ?�비?�입?�다."
     />
     <meta
       property="og:image"
@@ -52,11 +52,11 @@
     />
     <meta
       property="twitter:title"
-      content="유튜브 대본 분석 · 이미지 생성 통합도구"
+      content="?�튜�??��?분석 · ?��?지 ?�성 ?�합?�구"
     />
     <meta
       property="twitter:description"
-      content="대본 분석 결과로부터 바로 이미지까지 만들어내는 통합 워크플로우."
+      content="?��?분석 결과로�???바로 ?��?지까�? 만들?�내???�합 ?�크?�로??"
     />
     <meta
       property="twitter:image"
@@ -91,9 +91,9 @@
       }
     </script>
 
-    <!-- 강력한 복사/드래그 방지 CSS -->
+    <!-- 강력??복사/?�래�?방�? CSS -->
     <style>
-      /* 허용된 입력 필드들 - 최우선 순위 */
+      /* ?�용???�력 ?�드??- 최우???�위 */
       .api-key-modal input,
       .api-key-modal textarea,
       .api-key-modal input[type="text"],
@@ -149,13 +149,13 @@
         user-drag: none !important;
       }
 
-      /* 중복 제거됨 - 위의 통합된 선언 사용 */
+      /* 중복 ?�거??- ?�의 ?�합???�언 ?�용 */
 
       body {
         -webkit-touch-callout: none !important;
       }
 
-      /* 인쇄 방지 */
+      /* ?�쇄 방�? */
       @media print {
         body {
           display: none !important;
@@ -163,13 +163,17 @@
       }
     </style>
 
-    <!-- 추가 보안 스크립트 -->
+    <!-- 추�? 보안 ?�크립트 -->
     <script>
-      // 즉시 실행되는 보안 코드
+        // 즉시 ?�행?�는 보안 코드
       (function () {
         "use strict";
 
-        // 입력 필드 확인 헬퍼 함수
+        if (window.location.pathname.indexOf("/debug") === 0) {
+          return;
+        }
+
+        // ?�력 ?�드 ?�인 ?�퍼 ?�수
         function isAllowedInput(target) {
           if (!target || !target.closest) return false;
           return (
@@ -184,7 +188,7 @@
           );
         }
 
-        // 우클릭 방지 (허용된 입력 필드 제외)
+        // ?�클�?방�? (?�용???�력 ?�드 ?�외)
         document.addEventListener(
           "contextmenu",
           function (e) {
@@ -197,7 +201,7 @@
           false
         );
 
-        // 드래그 방지 (허용된 입력 필드 제외)
+        // ?�래�?방�? (?�용???�력 ?�드 ?�외)
         document.addEventListener(
           "dragstart",
           function (e) {
@@ -210,7 +214,7 @@
           false
         );
 
-        // 선택 방지 (허용된 입력 필드 제외)
+        // ?�택 방�? (?�용???�력 ?�드 ?�외)
         document.addEventListener(
           "selectstart",
           function (e) {
@@ -223,7 +227,7 @@
           false
         );
 
-        // 복사 방지 (허용된 입력 필드 제외)
+        // 복사 방�? (?�용???�력 ?�드 ?�외)
         document.addEventListener(
           "copy",
           function (e) {
@@ -239,7 +243,7 @@
           false
         );
 
-        // 잘라내기 방지 (허용된 입력 필드 제외)
+        // ?�라?�기 방�? (?�용???�력 ?�드 ?�외)
         document.addEventListener(
           "cut",
           function (e) {
@@ -255,7 +259,7 @@
           false
         );
 
-        // 붙여넣기 방지 (허용된 입력 필드 제외)
+        // 붙여?�기 방�? (?�용???�력 ?�드 ?�외)
         document.addEventListener(
           "paste",
           function (e) {
@@ -268,29 +272,29 @@
           false
         );
 
-        // 키보드 단축키 방지
+        // ?�보???�축??방�?
         document.addEventListener(
           "keydown",
           function (e) {
             // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+S, Ctrl+U, Ctrl+S, Ctrl+P, PrintScreen, Win+Shift+S
-            // 알캡처(ALCapture) 단축키 Ctrl+Shift+C/W/D/A/S/F
+            // ?�캡�?ALCapture) ?�축??Ctrl+Shift+C/W/D/A/S/F
             if (
               e.keyCode === 123 ||
               e.keyCode === 44 || // PrintScreen
               (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
               (e.ctrlKey && e.shiftKey && e.keyCode === 74) || // Ctrl+Shift+J
-              (e.ctrlKey && e.shiftKey && e.keyCode === 67) || // Ctrl+Shift+C (알캡처 직접 영작 캡처)
-              (e.ctrlKey && e.shiftKey && e.keyCode === 87) || // Ctrl+Shift+W (알캡처 창 캡처)
-              (e.ctrlKey && e.shiftKey && e.keyCode === 68) || // Ctrl+Shift+D (알캡처 일일영역 캡처)
-              (e.ctrlKey && e.shiftKey && e.keyCode === 65) || // Ctrl+Shift+A (알캡처 전체캡처)
-              (e.ctrlKey && e.shiftKey && e.keyCode === 83) || // Ctrl+Shift+S (알캡처 스크롤 캡처)
-              (e.ctrlKey && e.shiftKey && e.keyCode === 70) || // Ctrl+Shift+F (알캡처 지정사이즈 캡처)
-              (e.metaKey && e.shiftKey && e.keyCode === 83) || // Win+Shift+S (Windows 스크린샷 도구)
+              (e.ctrlKey && e.shiftKey && e.keyCode === 67) || // Ctrl+Shift+C (?�캡�?직접 ?�작 캡처)
+              (e.ctrlKey && e.shiftKey && e.keyCode === 87) || // Ctrl+Shift+W (?�캡�?�?캡처)
+              (e.ctrlKey && e.shiftKey && e.keyCode === 68) || // Ctrl+Shift+D (?�캡�??�일?�역 캡처)
+              (e.ctrlKey && e.shiftKey && e.keyCode === 65) || // Ctrl+Shift+A (?�캡�??�체캡처)
+              (e.ctrlKey && e.shiftKey && e.keyCode === 83) || // Ctrl+Shift+S (?�캡�??�크�?캡처)
+              (e.ctrlKey && e.shiftKey && e.keyCode === 70) || // Ctrl+Shift+F (?�캡�?지?�사?�즈 캡처)
+              (e.metaKey && e.shiftKey && e.keyCode === 83) || // Win+Shift+S (Windows ?�크린샷 ?�구)
               (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
-              (e.ctrlKey && e.keyCode === 83) || // Ctrl+S (페이지 저장
+              (e.ctrlKey && e.keyCode === 83) || // Ctrl+S (?�이지 ?�??
               (e.ctrlKey && e.keyCode === 80)
             ) {
-              // Ctrl+P (인쇄)
+              // Ctrl+P (?�쇄)
               e.preventDefault();
               e.stopPropagation();
               return false;
@@ -306,7 +310,7 @@
                 e.keyCode === 90)
             ) {
               var target = e.target;
-              // API 키 모달, 유튜브 URL, 대본 입력, 새 아이디어, 새 제목 입력창은 모두 허용
+              // API ??모달, ?�튜�?URL, ?��??�력, ???�이?�어, ???�목 ?�력창�? 모두 ?�용
               if (
                 target.closest &&
                 (target.closest(".api-key-modal") ||
@@ -318,7 +322,7 @@
               ) {
                 return;
               }
-              // 일반 INPUT/TEXTAREA는 허용
+              // ?�반 INPUT/TEXTAREA???�용
               if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
                 return;
               }
@@ -330,19 +334,19 @@
           true
         );
 
-        // 인쇄 차단
+        // ?�쇄 차단
         window.addEventListener(
           "beforeprint",
           function (e) {
             e.preventDefault();
             e.stopPropagation();
-            alert("???�이지??인쇄?????�습?�다.");
+            alert("???�이지???�쇄?????�습?�다.");
             return false;
           },
           true
         );
 
-        // Print Screen 키 추가 감지
+        // Print Screen ??추�? 감�?
         document.addEventListener(
           "keyup",
           function (e) {
@@ -354,7 +358,7 @@
           true
         );
 
-        // DevTools 감지
+        // DevTools 감�?
         var devtools = { open: false };
         var threshold = 160;
 
@@ -368,10 +372,10 @@
           }
         }, 1000);
 
-        // Selection 감시 (API 키 모달, 유튜브 URL 입력, 대본 입력, 새 아이디어 입력, 새 제목 입력 제외)
+        // Selection 감시 (API ??모달, ?�튜�?URL ?�력, ?��??�력, ???�이?�어 ?�력, ???�목 ?�력 ?�외)
         setInterval(function () {
           try {
-            // API 키 모달, 유튜브 URL 입력, 대본 입력, 새 아이디어 입력, 새 제목 입력이 열려있으면 건너뜁
+            // API ??모달, ?�튜�?URL ?�력, ?��??�력, ???�이?�어 ?�력, ???�목 ?�력???�려?�으�?건너??
             var modal = document.querySelector(".api-key-modal");
             var youtubeInput = document.querySelector(".youtube-url-input");
             var transcriptInput = document.querySelector(".transcript-input");
@@ -396,14 +400,14 @@
               return;
             }
 
-            // 선택된 요소가 API 키 모달, 유튜브 URL 입력, 대본 입력, 새 아이디어 입력, 새 제목 입력 입력창인지 확인
+            // ?�택???�소가 API ??모달, ?�튜�?URL ?�력, ?��??�력, ???�이?�어 ?�력, ???�목 ?�력 ?�력창인지 ?�인
             if (selection.rangeCount > 0) {
               var range = selection.getRangeAt(0);
               var container = range.commonAncestorContainer;
               var element =
                 container.nodeType === 1 ? container : container.parentElement;
 
-              // input이나 textarea는 무조건 허용
+              // input?�나 textarea??무조�??�용
               if (
                 element &&
                 (element.tagName === "INPUT" || element.tagName === "TEXTAREA")
@@ -411,7 +415,7 @@
                 return;
               }
 
-              // API 키 모달, 유튜브 URL 입력, 대본 입력, 새 아이디어 입력, 새 제목 입력 내부는 허용
+              // API ??모달, ?�튜�?URL ?�력, ?��??�력, ???�이?�어 ?�력, ???�목 ?�력 ?��????�용
               if (
                 element &&
                 element.closest &&
@@ -428,7 +432,7 @@
 
             selection.removeAllRanges();
           } catch (e) {
-            // 에러 발생 시 선택 제거 안함
+            // ?�러 발생 ???�택 ?�거 ?�함
           }
         }, 100);
       })();
@@ -440,3 +444,7 @@
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
+
+
+
+

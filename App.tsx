@@ -139,7 +139,11 @@ const SortableItem: React.FC<SortableItemProps> = ({
   );
 };
 
-const App: React.FC = () => {
+type AppProps = {
+  allowDevtools?: boolean;
+};
+
+const App: React.FC<AppProps> = ({ allowDevtools = false }) => {
   const navigate = useNavigate();
   // 카테고리 순서 관리
   const [categories, setCategories] = useState<string[]>(() => {
@@ -258,6 +262,9 @@ const App: React.FC = () => {
   // 카테고리 순서 저장
   
   useEffect(() => {
+    if (allowDevtools) {
+      return;
+    }
     const fetchVideoDetails = async () => {
       const trimmedUrl = youtubeUrl.trim();
       if (!trimmedUrl) {
@@ -567,7 +574,7 @@ const App: React.FC = () => {
       (document.body.style as any).msUserSelect = "";
       (document.body.style as any).MozUserSelect = "";
     };
-  }, []);
+  }, [allowDevtools]);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
