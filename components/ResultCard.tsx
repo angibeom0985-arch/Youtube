@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface ResultCardProps {
   title: string;
@@ -19,6 +19,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
   imagePrompts,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDownloadClick = () => {
     navigate("/download", {
@@ -26,6 +27,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
         title,
         content: contentToCopy,
         imagePrompts,
+        returnPath: location.pathname || "/",
       },
     });
   };

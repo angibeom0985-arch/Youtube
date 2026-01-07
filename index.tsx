@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
 import ImageApp from './image/App';
+import HomePage from './pages/HomePage.tsx';
 import GuidePage from './pages/GuidePage.tsx';
 import ApiGuidePage from './pages/ApiGuidePage.tsx';
 import AdminPage from './pages/AdminPage.tsx';
@@ -21,7 +22,8 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/script" element={<App />} />
         <Route path="/guide" element={<GuidePage />} />
         <Route path="/api-guide" element={<ApiGuidePage />} />
         <Route path="/admin" element={<AdminPage />} />

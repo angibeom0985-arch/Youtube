@@ -11,7 +11,7 @@ export interface DownloadOptions {
 const DownloadPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { title, content, imagePrompts } = location.state || {};
+  const { title, content, imagePrompts, returnPath } = location.state || {};
 
   const [format, setFormat] = useState<"txt" | "md" | "pdf">("txt");
   const [includeMetadata, setIncludeMetadata] = useState(true);
@@ -21,24 +21,60 @@ const DownloadPage: React.FC = () => {
   useEffect(() => {
     if (!content && !imagePrompts) {
       // 다운로드할 데이터가 없으면 홈으로 리다이렉트
-      navigate("/");
+      navigate(returnPath || "/");
     }
-  }, [content, imagePrompts, navigate]);
+  }, [content, imagePrompts, navigate, returnPath]);
+
+  const removeTimestampsFromText = (text: string) => {
+    return text.replace(/^\[[^\]]+\]\s*/gm, "");
+  };
+
+  const buildScriptContent = () => {
+    const baseContent = content || "??? ????.";
+    return includeTimestamp ? baseContent : removeTimestampsFromText(baseContent);
+  };
+
+  const buildImagePromptContent = () => {
+    return imagePrompts || "??? ????? ????.";
+  };
+
+  const applyMetadata = (text: string) => {
+    if (!includeMetadata) return text;
+    const metaTitle = title ? `??: ${title}` : "??: ????";
+    const metaDate = `???: ${new Date().toLocaleString("ko-KR")}`;
+    return `${metaTitle}\n${metaDate}\n\n${text}`;
+  };
 
   const handleDownload = () => {
     let finalContent = "";
     
     if (downloadType === "script") {
-      finalContent = content || "대본이 없습니다.";
+      finalContent = buildScriptContent();
     } else if (downloadType === "imagePrompts") {
-      finalContent = imagePrompts || "이미지 프롬프트가 없습니다.";
+      finalContent = buildImagePromptContent();
     } else if (downloadType === "both") {
-      finalContent = (content || "대본이 없습니다.") + "\n\n" + "=".repeat(50) + "\n\n이미지 생성 프롬프트\n" + "=".repeat(50) + "\n\n" + (imagePrompts || "이미지 프롬프트가 없습니다.");
+      finalContent =
+        buildScriptContent() +
+        "
+
+" +
+        "=".repeat(50) +
+        "
+
+??? ?? ????
+" +
+        "=".repeat(50) +
+        "
+
+" +
+        buildImagePromptContent();
     }
 
     if (!finalContent || finalContent.trim() === "") {
       finalContent = "내용이 없습니다.";
     }
+
+        finalContent = applyMetadata(finalContent);
 
     const blob = new Blob([finalContent], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -61,7 +97,7 @@ const DownloadPage: React.FC = () => {
 
     // 다운로드 후 홈으로 돌아가기
     setTimeout(() => {
-      navigate("/");
+      navigate(returnPath || "/");
     }, 500);
   };
 
@@ -74,7 +110,7 @@ const DownloadPage: React.FC = () => {
       <div className="relative bg-[#1A1A1A] border-2 border-red-500/50 rounded-2xl p-8 max-w-lg w-full shadow-[0_0_30px_rgba(217,0,0,0.3)]">
         {/* 닫기 버튼 */}
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate(returnPath || "/")}
           className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors"
         >
           <svg
@@ -179,6 +215,7 @@ const DownloadPage: React.FC = () => {
                 메타데이터 (카테고리, 길이 등)
               </span>
             </label>
+            {(downloadType === "script" || downloadType === "both") && (
             <label className="flex items-center gap-3 p-4 bg-[#2A2A2A] rounded-lg cursor-pointer hover:bg-[#3A3A3A] transition-colors">
               <input
                 type="checkbox"
@@ -187,9 +224,10 @@ const DownloadPage: React.FC = () => {
                 className="w-5 h-5 rounded border-2 border-red-500 bg-transparent checked:bg-red-600 checked:border-red-600 cursor-pointer accent-red-600"
               />
               <span className="text-sm text-neutral-200">
-                생성 시각 및 날짜
+                ???? ??
               </span>
             </label>
+          )}
           </div>
         </div>
 
@@ -214,7 +252,7 @@ const DownloadPage: React.FC = () => {
         {/* 액션 버튼 */}
         <div className="flex gap-3">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(returnPath || "/")}
             className="flex-1 bg-[#2A2A2A] hover:bg-[#3A3A3A] text-neutral-200 font-semibold py-3 px-6 rounded-lg transition-all duration-200 border border-[#3A3A3A]"
           >
             취소
