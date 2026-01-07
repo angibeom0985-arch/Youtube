@@ -1416,9 +1416,6 @@ const App: React.FC = () => {
               📖 사용법
             </a>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-neutral-200">
-                ?? API ?? ?
-              </span>
               {(analysisResult || newPlan || suggestedIdeas.length > 0) && (
                 <button
                   onClick={handleClearData}
