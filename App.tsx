@@ -1430,14 +1430,6 @@ const App: React.FC = () => {
           </nav>
         </header>
 
-        {abuseDecision && abuseDecision.label !== "normal" && (
-          <div className="mb-6 rounded-lg border border-yellow-700 bg-yellow-900/30 p-4 text-sm text-yellow-100">
-            {abuseDecision.label === "suspicious"
-              ? "Usage is limited due to risk detection. Planning features are disabled."
-              : "Free usage is blocked due to abuse detection."}
-          </div>
-        )}
-
         <main>
           {/* --- INPUT SECTION --- */}
           <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6 mb-8">
