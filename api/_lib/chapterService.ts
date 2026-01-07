@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { AnalysisResult, Chapter, ScriptLine, StructuredContent } from "../../types";
+import type { AnalysisResult, Chapter, ScriptLine, StructuredContent } from "../../types.js";
 
 const createAI = (apiKey: string) => {
   return new GoogleGenAI({ apiKey });

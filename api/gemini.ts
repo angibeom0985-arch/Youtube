@@ -3,13 +3,13 @@ import {
   analyzeTranscript,
   generateIdeas,
   generateNewPlan,
-} from "./_lib/geminiService";
+} from "./_lib/geminiService.js";
 import {
   generateChapterOutline,
   generateChapterScript,
-} from "./_lib/chapterService";
-import { enforceAbusePolicy } from "./_lib/abuseGuard";
-import { enforceUsageLimit, recordUsageEvent } from "./_lib/usageLimit";
+} from "./_lib/chapterService.js";
+import { enforceAbusePolicy } from "./_lib/abuseGuard.js";
+import { enforceUsageLimit, recordUsageEvent } from "./_lib/usageLimit.js";
 
 type RateEntry = {
   count: number;

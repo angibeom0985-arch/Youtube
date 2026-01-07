@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createHash } from "crypto";
-import { supabaseAdmin } from "../_lib/supabase";
-import { classifyWithGroq } from "../_lib/groq";
+import { supabaseAdmin } from "../_lib/supabase.js";
+import { classifyWithGroq } from "../_lib/groq.js";
 
 const HASH_SALT = process.env.ABUSE_HASH_SALT || "local_dev_salt";
 const LOOKBACK_MS = Number(process.env.ABUSE_LOOKBACK_MS || 24 * 60 * 60 * 1000);

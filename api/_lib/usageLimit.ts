@@ -1,6 +1,6 @@
 import type { VercelRequest } from "@vercel/node";
 import { createHash } from "crypto";
-import { supabaseAdmin } from "./supabase";
+import { supabaseAdmin } from "./supabase.js";
 
 const HASH_SALT = process.env.ABUSE_HASH_SALT || "local_dev_salt";
 
