@@ -32,17 +32,13 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-red-300">
-                  대본
-                </p>
                 <h2 className="mt-2 text-2xl font-bold">
                   대본 생성
                 </h2>
                 <p className="mt-3 text-sm text-neutral-300">
-                  기획, 개요, 전체 대본까지 생성합니다.
+                  떡상한 영상의 대본을 분석한 다음, 그걸 토대로 내 영상의 대본으로 만들어드립니다.
                 </p>
               </div>
-              <div className="text-2xl font-bold text-red-200">대</div>
             </div>
             <div className="mt-6 text-sm font-semibold text-red-200">
               대본 생성 시작하기 -&gt;
@@ -55,9 +51,6 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">
-                  이미지
-                </p>
                 <h2 className="mt-2 text-2xl font-bold">
                   이미지 생성
                 </h2>
@@ -65,7 +58,6 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
                   대본에 맞는 이미지와 스토리보드를 제작합니다.
                 </p>
               </div>
-              <div className="text-2xl font-bold text-emerald-200">이</div>
             </div>
             <div className="mt-6 text-sm font-semibold text-emerald-200">
               이미지 생성 시작하기 -&gt;
