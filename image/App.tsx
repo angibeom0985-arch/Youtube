@@ -1,6 +1,25 @@
 ﻿import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { compressImage, canStoreInLocalStorage } from "./utils/imageCompression";
+import {
+  generateCharacters,
+  generateStoryboard,
+  regenerateCharacterImage,
+  regenerateStoryboardImage,
+  generateCameraAngles,
+} from "./services/geminiService";
+import { detectUnsafeWords, replaceUnsafeWords } from "./utils/contentSafety";
+import {
+  AspectRatio,
+  BackgroundStyle,
+  CameraAngle,
+  CameraAngleImage,
+  Character,
+  CharacterStyle,
+  ImageStyle,
+  PhotoComposition,
+  VideoSourceImage,
+} from "./types";
 import AspectRatioSelector from "./components/AspectRatioSelector";
 import Spinner from "./components/Spinner";
 import CharacterCard from "./components/CharacterCard";
@@ -245,12 +264,12 @@ const App: React.FC<ImageAppProps> = ({
       try {
         localStorage.removeItem("youtube_image_work_data");
       } catch (storageError) {
-        console.error("? localStorage ?? ??:", storageError);
+        console.error("❌ localStorage 정리 실패:", storageError);
       }
       try {
         sessionStorage.removeItem("youtube_image_work_data");
       } catch (storageError) {
-        console.error("? sessionStorage ?? ??:", storageError);
+        console.error("❌ sessionStorage 정리 실패:", storageError);
       }
       alert("⚠️ 저장된 데이터가 손상되어 불러올 수 없습니다.\n새로 시작해주세요.");
     }
@@ -735,6 +754,488 @@ const App: React.FC<ImageAppProps> = ({
         style.parentNode.removeChild(style);
       }
     };
+  }, []);
+
+  const openImageInNewWindow = useCallback(
+    (imageData: string, title: string = "이미지 보기") => {
+      const imageSrc = imageData.startsWith("data:image")
+        ? imageData
+        : `data:image/png;base64,${imageData}`;
+      const imageWindow = window.open(
+        "",
+        "_blank",
+        "width=900,height=700,scrollbars=yes,resizable=yes"
+      );
+      if (!imageWindow) return;
+
+      imageWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${title}</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+          }
+          img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+          }
+          h1 {
+            font-size: 18px;
+            margin: 0 0 16px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>${title}</h1>
+        <img src="${imageSrc}" alt="${title}" />
+      </body>
+      </html>
+    `);
+      imageWindow.document.close();
+    },
+    []
+  );
+
+  const checkAndReplaceContent = useCallback(
+    (text: string) => {
+      const unsafeWords = detectUnsafeWords(text);
+      if (unsafeWords.length > 0) {
+        const { replacements } = replaceUnsafeWords(text);
+        setContentWarning({ unsafeWords, replacements });
+        setHasContentWarning(true);
+        return isContentWarningAcknowledged;
+      }
+      setContentWarning(null);
+      setHasContentWarning(false);
+      return true;
+    },
+    [isContentWarningAcknowledged]
+  );
+
+  const handleAutoReplace = useCallback(() => {
+    if (!contentWarning) return;
+    const { replacedText: replacedPersona } = replaceUnsafeWords(personaInput);
+    const { replacedText: replacedScript } =
+      replaceUnsafeWords(videoSourceScript);
+    setPersonaInput(replacedPersona);
+    setVideoSourceScript(replacedScript);
+    setContentWarning(null);
+    setHasContentWarning(false);
+    setIsContentWarningAcknowledged(true);
+  }, [contentWarning, personaInput, videoSourceScript]);
+
+  const handleAcknowledgeWarning = useCallback(() => {
+    setIsContentWarningAcknowledged(true);
+  }, []);
+
+  const handleReferenceImageUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        setError("참조 이미지는 최대 10MB까지 업로드할 수 있습니다.");
+        event.target.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.includes(",") ? result.split(",")[1] : result;
+        setReferenceImage(base64);
+      };
+      reader.readAsDataURL(file);
+    },
+    []
+  );
+
+  const handleRemoveReferenceImage = useCallback(() => {
+    setReferenceImage(null);
+  }, []);
+
+  const handleCameraAngleImageUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        setCameraAngleError("원본 이미지는 최대 10MB까지 업로드할 수 있습니다.");
+        event.target.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        setCameraAngleSourceImage(result);
+        setCameraAngles([]);
+        setCameraAngleError(null);
+      };
+      reader.readAsDataURL(file);
+    },
+    []
+  );
+
+  const handleGeneratePersonas = useCallback(async () => {
+    if (!apiKey.trim()) {
+      setPersonaError(
+        "서버 API 키가 설정되지 않았습니다. 관리자에게 문의해주세요."
+      );
+      return;
+    }
+    if (!personaInput.trim()) {
+      setPersonaError("페르소나 설명이나 대본을 입력해주세요.");
+      return;
+    }
+
+    const isSafe = checkAndReplaceContent(personaInput);
+    if (!isSafe) {
+      setIsContentWarningAcknowledged(false);
+      return;
+    }
+
+    setIsLoadingCharacters(true);
+    setPersonaError(null);
+    setCharacters([]);
+    setLoadingProgress("페르소나 분석 중...");
+
+    try {
+      const generatedCharacters = await generateCharacters(
+        personaInput,
+        apiKey,
+        imageStyle,
+        aspectRatio,
+        personaStyle,
+        customStyle,
+        photoComposition,
+        customPrompt,
+        characterStyle,
+        backgroundStyle,
+        customCharacterStyle,
+        customBackgroundStyle,
+        personaReferenceImage,
+        (progress) => setLoadingProgress(progress)
+      );
+
+      if (generatedCharacters.length === 0) {
+        setPersonaError(
+          "페르소나 생성에 실패했습니다. 입력을 바꿔 다시 시도해주세요."
+        );
+      } else {
+        setCharacters(generatedCharacters);
+        setPersonaError(`✅ 페르소나 ${generatedCharacters.length}개 생성 완료`);
+        setTimeout(() => saveDataToStorage(true), 100);
+      }
+    } catch (e) {
+      console.error("[개발자용] 페르소나 생성 오류:", e);
+      const message =
+        e instanceof Error
+          ? e.message
+          : "페르소나 생성 중 오류가 발생했습니다.";
+      setPersonaError(message);
+    } finally {
+      setIsLoadingCharacters(false);
+      setLoadingProgress("");
+    }
+  }, [
+    apiKey,
+    personaInput,
+    imageStyle,
+    aspectRatio,
+    personaStyle,
+    customStyle,
+    photoComposition,
+    customPrompt,
+    characterStyle,
+    backgroundStyle,
+    customCharacterStyle,
+    customBackgroundStyle,
+    personaReferenceImage,
+    checkAndReplaceContent,
+    saveDataToStorage,
+  ]);
+
+  const handleRegenerateCharacter = useCallback(
+    async (
+      characterId: string,
+      description: string,
+      name: string,
+      customPrompt?: string
+    ) => {
+      if (!apiKey.trim()) {
+        setPersonaError(
+          "서버 API 키가 설정되지 않았습니다. 관리자에게 문의해주세요."
+        );
+        return;
+      }
+      try {
+        const mergedDescription = customPrompt
+          ? `${description}\n추가 요청: ${customPrompt}`
+          : description;
+        const newImage = await regenerateCharacterImage(
+          mergedDescription,
+          name,
+          apiKey,
+          imageStyle,
+          aspectRatio,
+          personaStyle
+        );
+        setCharacters((prev) =>
+          prev.map((char) =>
+            char.id === characterId ? { ...char, image: newImage } : char
+          )
+        );
+        setPersonaError(`✅ ${name} 이미지가 업데이트되었습니다.`);
+        setTimeout(() => saveDataToStorage(true), 100);
+      } catch (e) {
+        console.error("[개발자용] 페르소나 재생성 오류:", e);
+        const message =
+          e instanceof Error ? e.message : "페르소나 재생성에 실패했습니다.";
+        setPersonaError(message);
+      }
+    },
+    [apiKey, imageStyle, aspectRatio, personaStyle, saveDataToStorage]
+  );
+
+  const handleGenerateVideoSource = useCallback(async () => {
+    if (!apiKey.trim()) {
+      setError("서버 API 키가 설정되지 않았습니다. 관리자에게 문의해주세요.");
+      return;
+    }
+    if (!videoSourceScript.trim()) {
+      setError("영상 소스 대본을 입력해주세요.");
+      return;
+    }
+    if (characters.length === 0 && !referenceImage) {
+      setError("페르소나를 생성하거나 참조 이미지를 업로드해주세요.");
+      return;
+    }
+
+    const isSafe = checkAndReplaceContent(videoSourceScript);
+    if (!isSafe) {
+      setIsContentWarningAcknowledged(false);
+      return;
+    }
+
+    setIsLoadingVideoSource(true);
+    setError(null);
+    setVideoSource([]);
+    setLoadingProgress("대본 분석 중...");
+
+    try {
+      const generatedVideoSource = await generateStoryboard(
+        videoSourceScript,
+        characters,
+        imageCount,
+        apiKey,
+        imageStyle,
+        subtitleEnabled,
+        referenceImage,
+        aspectRatio,
+        (progress) => setLoadingProgress(progress)
+      );
+
+      setVideoSource(generatedVideoSource);
+      setTimeout(() => saveDataToStorage(true), 100);
+    } catch (e) {
+      console.error("[개발자용] 영상 소스 생성 오류:", e);
+      const message =
+        e instanceof Error
+          ? e.message
+          : "영상 소스 생성 중 오류가 발생했습니다.";
+      setError(message);
+    } finally {
+      setIsLoadingVideoSource(false);
+      setLoadingProgress("");
+    }
+  }, [
+    apiKey,
+    videoSourceScript,
+    characters,
+    imageCount,
+    imageStyle,
+    subtitleEnabled,
+    referenceImage,
+    aspectRatio,
+    checkAndReplaceContent,
+    saveDataToStorage,
+  ]);
+
+  const handleRegenerateVideoSourceImage = useCallback(
+    async (storyboardItemId: string, customPrompt?: string) => {
+      if (!apiKey.trim()) {
+        setError("서버 API 키가 설정되지 않았습니다. 관리자에게 문의해주세요.");
+        return;
+      }
+
+      const target = videoSource.find((item) => item.id === storyboardItemId);
+      if (!target) return;
+
+      try {
+        const mergedScene = customPrompt
+          ? `${target.sceneDescription}\n추가 요청: ${customPrompt}`
+          : target.sceneDescription;
+        const newImage = await regenerateStoryboardImage(
+          mergedScene,
+          characters,
+          apiKey,
+          imageStyle,
+          subtitleEnabled,
+          referenceImage,
+          aspectRatio
+        );
+
+        setVideoSource((prev) =>
+          prev.map((item) =>
+            item.id === storyboardItemId ? { ...item, image: newImage } : item
+          )
+        );
+        setTimeout(() => saveDataToStorage(true), 100);
+      } catch (e) {
+        console.error("[개발자용] 영상 소스 재생성 오류:", e);
+        const message =
+          e instanceof Error ? e.message : "영상 소스 재생성에 실패했습니다.";
+        setError(message);
+      }
+    },
+    [
+      apiKey,
+      videoSource,
+      characters,
+      imageStyle,
+      subtitleEnabled,
+      referenceImage,
+      aspectRatio,
+      saveDataToStorage,
+    ]
+  );
+
+  const handleGenerateCameraAngles = useCallback(async () => {
+    if (!apiKey.trim()) {
+      setCameraAngleError(
+        "서버 API 키가 설정되지 않았습니다. 관리자에게 문의해주세요."
+      );
+      return;
+    }
+    if (!cameraAngleSourceImage) {
+      setCameraAngleError("원본 이미지를 업로드해주세요.");
+      return;
+    }
+    if (selectedCameraAngles.length === 0) {
+      setCameraAngleError("생성할 앵글을 최소 1개 이상 선택해주세요.");
+      return;
+    }
+
+    setIsLoadingCameraAngles(true);
+    setCameraAngleError(null);
+    setCameraAngles([]);
+    setCameraAngleProgress("원본 이미지 분석 중...");
+
+    try {
+      const generatedAngles = await generateCameraAngles(
+        cameraAngleSourceImage,
+        selectedCameraAngles,
+        apiKey,
+        aspectRatio,
+        (message, current, total) => {
+          setCameraAngleProgress(`${message} (${current}/${total})`);
+        }
+      );
+
+      setCameraAngles(generatedAngles);
+      setTimeout(() => saveDataToStorage(true), 100);
+
+      const successCount = generatedAngles.filter(
+        (angle) => angle.image && angle.image.trim() !== ""
+      ).length;
+      const totalSelected = selectedCameraAngles.length;
+
+      if (successCount === 0) {
+        setCameraAngleError(
+          "모든 앵글 생성에 실패했습니다. 잠시 후 다시 시도해주세요."
+        );
+      } else if (successCount < totalSelected) {
+        setCameraAngleError(
+          `⚠️ ${successCount}/${totalSelected}개 앵글만 생성되었습니다. 실패한 앵글은 다시 시도해주세요.`
+        );
+      }
+    } catch (e) {
+      console.error("[개발자용] 카메라 앵글 생성 오류:", e);
+      const message =
+        e instanceof Error
+          ? e.message
+          : "카메라 앵글 생성 중 오류가 발생했습니다.";
+      setCameraAngleError(message);
+    } finally {
+      setIsLoadingCameraAngles(false);
+      setCameraAngleProgress("");
+    }
+  }, [
+    apiKey,
+    cameraAngleSourceImage,
+    selectedCameraAngles,
+    aspectRatio,
+    saveDataToStorage,
+  ]);
+
+  const handleResetAll = useCallback(() => {
+    try {
+      localStorage.removeItem("youtube_image_work_data");
+    } catch (storageError) {
+      console.error("❌ localStorage 정리 실패:", storageError);
+    }
+    try {
+      sessionStorage.removeItem("youtube_image_work_data");
+    } catch (storageError) {
+      console.error("❌ sessionStorage 정리 실패:", storageError);
+    }
+
+    setCharacters([]);
+    setVideoSource([]);
+    setPersonaInput("");
+    setVideoSourceScript("");
+    setPersonaReferenceImage(null);
+    setReferenceImage(null);
+    setImageStyle("realistic");
+    setPersonaStyle("실사 극대화");
+    setCharacterStyle("실사 극대화");
+    setBackgroundStyle("모던");
+    setCustomCharacterStyle("");
+    setCustomBackgroundStyle("");
+    setCustomStyle("");
+    setPhotoComposition("정면");
+    setCustomPrompt("");
+    setAspectRatio("16:9");
+    setImageCount(5);
+    setSubtitleEnabled(false);
+    setError(null);
+    setPersonaError(null);
+    setContentWarning(null);
+    setHasContentWarning(false);
+    setIsContentWarningAcknowledged(false);
+    setHoveredStyle(null);
+    setCameraAngleSourceImage(null);
+    setSelectedCameraAngles([
+      "Front View",
+      "Right Side View",
+      "Left Side View",
+      "Back View",
+      "Full Body",
+      "Close-up Face",
+    ]);
+    setCameraAngles([]);
+    setCameraAngleError(null);
+    setCameraAngleProgress("");
   }, []);
 
   const handleDownloadAllImages = useCallback(async () => {
