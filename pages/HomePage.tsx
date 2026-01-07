@@ -1,7 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+  basePath?: string;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
+  const normalizedBasePath = basePath && basePath !== "/" ? basePath.replace(/\/$/, "") : "";
+  const scriptPath = `${normalizedBasePath}/script` || "/script";
+  const imagePath = `${normalizedBasePath}/image` || "/image";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-black text-white">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-16">
@@ -19,7 +27,7 @@ const HomePage: React.FC = () => {
 
         <div className="mt-10 grid w-full gap-6 sm:grid-cols-2">
           <Link
-            to="/script"
+            to={scriptPath}
             className="group rounded-2xl border border-red-500/40 bg-gradient-to-br from-red-600/20 via-red-500/10 to-transparent p-6 transition duration-300 hover:-translate-y-1 hover:border-red-400 hover:bg-red-500/20"
           >
             <div className="flex items-start justify-between">
@@ -42,7 +50,7 @@ const HomePage: React.FC = () => {
           </Link>
 
           <Link
-            to="/image"
+            to={imagePath}
             className="group rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-600/20 via-emerald-500/10 to-transparent p-6 transition duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:bg-emerald-500/20"
           >
             <div className="flex items-start justify-between">
