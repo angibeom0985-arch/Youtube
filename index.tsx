@@ -28,10 +28,10 @@ root.render(
         <Route path="/guide" element={<GuidePage />} />
         <Route path="/api-guide" element={<ApiGuidePage />} />
         <Route path="/admin" element={<AdminPage />} />
-        <Route path="/debug" element={<HomePage basePath="/debug" />} />
-        <Route path="/debug/" element={<HomePage basePath="/debug" />} />
-        <Route path="/debug/script" element={<DebugPage mode="script" />} />
-        <Route path="/debug/image/*" element={<DebugPage mode="image" />} />
+        <Route path="/debug" element={<Navigate to="/" replace />} />
+        <Route path="/debug/" element={<Navigate to="/" replace />} />
+        <Route path="/debug/script" element={<Navigate to="/script" replace />} />
+        <Route path="/debug/image/*" element={<Navigate to="/image" replace />} />
         <Route path="/download-progress" element={<DownloadProgressPage />} />
         <Route path="/download" element={<DownloadPage />} />
         <Route
