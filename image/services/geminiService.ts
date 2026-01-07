@@ -205,7 +205,7 @@ const getGoogleAI = (apiKey?: string) => {
   const key = apiKey || process.env.API_KEY || process.env.GEMINI_API_KEY;
   if (!key) {
     throw new Error(
-      "❌ API 키가 설정되지 않았습니다.\n\n💡 해결 방법:\n1. Google AI Studio(aistudio.google.com)에 접속하세요.\n2. 왼쪽 메뉴에서 'Get API Key'를 클릭하세요.\n3. API 키를 복사하여 화면 상단 입력란에 붙여넣으세요."
+      "❌ API 키가 설정되지 않았습니다.\n\n💡 해결 방법:\n1. Google AI Studio(aistudio.google.com)에 접속하세요.\n2. 왼쪽 메뉴에서 'API ? ??'를 클릭하세요.\n3. API 키를 복사하여 화면 상단 입력란에 붙여넣으세요."
     );
   }
   return new GoogleGenAI({ apiKey: key });

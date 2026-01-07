@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
                   기획, 개요, 전체 대본까지 생성합니다.
                 </p>
               </div>
-              <div className="text-2xl font-bold text-red-200">S</div>
+              <div className="text-2xl font-bold text-red-200">대</div>
             </div>
             <div className="mt-6 text-sm font-semibold text-red-200">
               대본 생성 시작하기 -&gt;
@@ -57,7 +57,7 @@ const HomePage: React.FC = () => {
                   대본에 맞는 이미지와 스토리보드를 제작합니다.
                 </p>
               </div>
-              <div className="text-2xl font-bold text-emerald-200">I</div>
+              <div className="text-2xl font-bold text-emerald-200">이</div>
             </div>
             <div className="mt-6 text-sm font-semibold text-emerald-200">
               이미지 생성 시작하기 -&gt;

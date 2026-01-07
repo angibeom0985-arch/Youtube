@@ -74,7 +74,7 @@ const DownloadPage: React.FC = () => {
     const a = document.createElement("a");
     a.href = url;
     
-    let fileName = title || "download";
+    let fileName = title || "다운로드";
     if (downloadType === "script") {
       fileName += "-script";
     } else if (downloadType === "imagePrompts") {
@@ -236,7 +236,7 @@ const DownloadPage: React.FC = () => {
                 브라우저의 기본 다운로드 폴더에 저장됩니다.
               </p>
               <p className="text-xs text-neutral-400 mt-1">
-                (일반적으로 "다운로드" 또는 "Downloads" 폴더)
+                (일반적으로 "다운로드" 폴더)
               </p>
             </div>
           </div>

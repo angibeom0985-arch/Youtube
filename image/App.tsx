@@ -226,6 +226,15 @@ const App: React.FC<ImageAppProps> = ({
           console.log("✅ 영상소스 참조 이미지 복원");
         }
         if (parsed.imageStyle) setImageStyle(parsed.imageStyle);
+        if (parsed.personaStyle) setPersonaStyle(parsed.personaStyle);
+        if (parsed.customCharacterStyle) setCustomCharacterStyle(parsed.customCharacterStyle);
+        if (parsed.customBackgroundStyle) setCustomBackgroundStyle(parsed.customBackgroundStyle);
+        if (parsed.customStyle) setCustomStyle(parsed.customStyle);
+        if (parsed.photoComposition) setPhotoComposition(parsed.photoComposition);
+        if (parsed.customPrompt) setCustomPrompt(parsed.customPrompt);
+        if (parsed.selectedCameraAngles && parsed.selectedCameraAngles.length > 0) {
+          setSelectedCameraAngles(parsed.selectedCameraAngles);
+        }
         if (parsed.characterStyle) setCharacterStyle(parsed.characterStyle);
         if (parsed.backgroundStyle) setBackgroundStyle(parsed.backgroundStyle);
         if (parsed.aspectRatio) setAspectRatio(parsed.aspectRatio);
@@ -292,7 +301,21 @@ const App: React.FC<ImageAppProps> = ({
   // 저장 함수를 별도로 분리 (즉시 저장 가능하도록)
   const saveDataToStorage = useCallback(async (immediate = false) => {
     // 저장할 데이터가 없으면 스킵
-    if (characters.length === 0 && videoSource.length === 0 && cameraAngles.length === 0) {
+    const hasWorkData =
+      characters.length > 0 ||
+      videoSource.length > 0 ||
+      cameraAngles.length > 0 ||
+      Boolean(personaInput.trim()) ||
+      Boolean(videoSourceScript.trim()) ||
+      Boolean(personaReferenceImage) ||
+      Boolean(referenceImage) ||
+      Boolean(customPrompt.trim()) ||
+      Boolean(customStyle.trim()) ||
+      Boolean(customCharacterStyle.trim()) ||
+      Boolean(customBackgroundStyle.trim()) ||
+      Boolean(cameraAngleSourceImage);
+
+    if (!hasWorkData) {
       return;
     }
 
@@ -354,6 +377,13 @@ const App: React.FC<ImageAppProps> = ({
         videoSource: compressedVideoSource,
         personaInput,
         videoSourceScript,
+        personaStyle,
+        customCharacterStyle,
+        customBackgroundStyle,
+        customStyle,
+        photoComposition,
+        customPrompt,
+        selectedCameraAngles,
         personaReferenceImage: personaReferenceImage 
           ? await compressImage(personaReferenceImage, 400, 0.5) 
           : null,
@@ -422,6 +452,13 @@ const App: React.FC<ImageAppProps> = ({
           const minimalData = {
             personaInput,
             videoSourceScript,
+            personaStyle,
+            customCharacterStyle,
+            customBackgroundStyle,
+            customStyle,
+            photoComposition,
+            customPrompt,
+            selectedCameraAngles,
             imageStyle,
             characterStyle,
             backgroundStyle,
@@ -444,6 +481,13 @@ const App: React.FC<ImageAppProps> = ({
     videoSource,
     personaInput,
     videoSourceScript,
+    personaStyle,
+    customCharacterStyle,
+    customBackgroundStyle,
+    customStyle,
+    photoComposition,
+    customPrompt,
+    selectedCameraAngles,
     personaReferenceImage,
     referenceImage,
     imageStyle,
@@ -459,7 +503,19 @@ const App: React.FC<ImageAppProps> = ({
   // 작업 데이터가 변경될 때마다 localStorage + sessionStorage에 저장 (이중 백업)
   useEffect(() => {
     // 초기 마운트 시에는 저장하지 않음 (데이터 로드 후에만 저장)
-    const hasData = characters.length > 0 || videoSource.length > 0 || cameraAngles.length > 0;
+    const hasData =
+      characters.length > 0 ||
+      videoSource.length > 0 ||
+      cameraAngles.length > 0 ||
+      Boolean(personaInput.trim()) ||
+      Boolean(videoSourceScript.trim()) ||
+      Boolean(personaReferenceImage) ||
+      Boolean(referenceImage) ||
+      Boolean(customPrompt.trim()) ||
+      Boolean(customStyle.trim()) ||
+      Boolean(customCharacterStyle.trim()) ||
+      Boolean(customBackgroundStyle.trim()) ||
+      Boolean(cameraAngleSourceImage);
     
     if (!hasData) {
       return; // 데이터가 없으면 저장하지 않음
@@ -473,39 +529,20 @@ const App: React.FC<ImageAppProps> = ({
 
     return () => clearTimeout(timer);
   }, [
-    characters,
-    videoSource,
+    saveDataToStorage,
+    characters.length,
+    videoSource.length,
+    cameraAngles.length,
     personaInput,
     videoSourceScript,
     personaReferenceImage,
     referenceImage,
-    imageStyle,
-    characterStyle,
-    backgroundStyle,
-    aspectRatio,
-    imageCount,
-    subtitleEnabled,
+    customPrompt,
+    customStyle,
+    customCharacterStyle,
+    customBackgroundStyle,
     cameraAngleSourceImage,
-    cameraAngles,
-    saveDataToStorage, // 의존성 추가
   ]);
-
-  // 페이지 닫기/새로고침 시 강제 저장
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // 저장할 데이터가 있는 경우 즉시 저장
-      if (characters.length > 0 || videoSource.length > 0 || cameraAngles.length > 0) {
-        console.log('⚠️ 페이지 닫기 감지 - 즉시 저장 실행');
-        saveDataToStorage(true);
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [saveDataToStorage, characters.length, videoSource.length, cameraAngles.length]);
 
   // 보안: 드래그, 우클릭, 캡처 방지
   useEffect(() => {
@@ -1457,6 +1494,19 @@ const App: React.FC<ImageAppProps> = ({
       setPersonaReferenceImage(null);
       setReferenceImage(null);
       setImageStyle("realistic");
+      setPersonaStyle("?? ???");
+      setCustomCharacterStyle("");
+      setCustomBackgroundStyle("");
+      setCustomStyle("");
+      setPhotoComposition("??");
+      setSelectedCameraAngles([
+        "Front View",
+        "Right Side View",
+        "Left Side View",
+        "Back View",
+        "Full Body",
+        "Close-up Face",
+      ]);
       setCharacterStyle("실사 극대화");
       setBackgroundStyle("모던");
       setAspectRatio("16:9");
@@ -3011,7 +3061,7 @@ const App: React.FC<ImageAppProps> = ({
 
                   {!apiKey && (
                     <p className="text-yellow-400 text-sm mt-2">
-                      ⚠️ API Key를 먼저 입력해주세요
+                      ⚠️ API ?를 먼저 입력해주세요
                     </p>
                   )}
                 </>
@@ -3189,7 +3239,7 @@ const App: React.FC<ImageAppProps> = ({
                                 if ('showSaveFilePicker' in window) {
                                   try {
                                     const handle = await (window as any).showSaveFilePicker({
-                                      suggestedName: `camera-angle-${angleImg.angle}.jpg`,
+                                      suggestedName: `???-??-${angleImg.angle}.jpg`,
                                       types: [
                                         {
                                           description: '이미지 파일',
@@ -3212,7 +3262,7 @@ const App: React.FC<ImageAppProps> = ({
                                   // 폴백: 기존 다운로드 방식
                                   const link = document.createElement('a');
                                   link.href = URL.createObjectURL(blob);
-                                  link.download = `camera-angle-${angleImg.angle}.jpg`;
+                                  link.download = `???-??-${angleImg.angle}.jpg`;
                                   document.body.appendChild(link);
                                   link.click();
                                   document.body.removeChild(link);

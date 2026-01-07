@@ -169,7 +169,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
           <p className="text-xs text-neutral-400">
             브라우저의 기본 다운로드 폴더에 저장됩니다.
             <br />
-            (일반적으로 "다운로드" 또는 "Downloads" 폴더)
+            (일반적으로 "다운로드" 폴더)
           </p>
         </div>
 

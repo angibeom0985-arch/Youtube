@@ -276,14 +276,14 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
             <button
               onClick={handleDownloadClick}
               className="bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              aria-label={`Download image for ${character.name}`}
+              aria-label={`${character.name} 이미지 다운로드`}
             >
               <DownloadIcon className="w-6 h-6" />
             </button>
             <button
               onClick={handleRegenerateClick}
               className="bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              aria-label={`Regenerate image for ${character.name}`}
+              aria-label={`${character.name} 이미지 재생성`}
             >
               <RefreshIcon className="w-6 h-6" />
             </button>

@@ -207,14 +207,14 @@ const StoryboardImage: React.FC<StoryboardImageProps> = ({
               <button
                 onClick={handleDownloadClick}
                 className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                aria-label={`Download image for scene: ${item.sceneDescription}`}
+                aria-label={`장면 이미지 다운로드: ${item.sceneDescription}`}
               >
                 <DownloadIcon className="w-5 h-5" />
               </button>
               <button
                 onClick={handleRegenerateClick}
                 className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                aria-label={`Regenerate image for scene: ${item.sceneDescription}`}
+                aria-label={`장면 이미지 재생성: ${item.sceneDescription}`}
               >
                 <RefreshIcon className="w-5 h-5" />
               </button>

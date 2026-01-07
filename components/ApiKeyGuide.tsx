@@ -182,14 +182,14 @@ const ApiKeyGuide: React.FC<ApiKeyGuideProps> = ({ onBack }) => {
             <div className="mb-6">
               <img
                 src="/api 2.png"
-                alt="Get API key 버튼 클릭"
+                alt="API ? ?? 버튼 클릭"
                 className="w-full rounded-lg border shadow-sm"
               />
             </div>
 
             <div className="space-y-4">
               <p className="text-gray-700">
-                위 스크린샷과 같이 왼쪽 사이드바에서 "Get API key" 버튼을
+                위 스크린샷과 같이 왼쪽 사이드바에서 "API ? ??" 버튼을
                 클릭하여 API 키 생성 페이지로 이동합니다.
               </p>
               <div className="bg-gray-100 p-4 rounded-lg">
@@ -223,7 +223,7 @@ const ApiKeyGuide: React.FC<ApiKeyGuideProps> = ({ onBack }) => {
             <div className="mb-6">
               <img
                 src="/api 3.png"
-                alt="Create API key 버튼 클릭"
+                alt="API ? ??? 버튼 클릭"
                 className="w-full rounded-lg border shadow-sm"
               />
             </div>

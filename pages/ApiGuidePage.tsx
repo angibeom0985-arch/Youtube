@@ -96,10 +96,10 @@ const ApiGuidePage: React.FC = () => {
               <h2 className="text-2xl font-bold text-white">프로젝트 만들기 1</h2>
             </div>
             <div className="mb-4">
-              <img src="/images/api 2.png" alt="Get API key 버튼 클릭" className="w-full rounded-lg border border-[#2A2A2A]" />
+              <img src="/images/api 2.png" alt="API ? ?? 버튼 클릭" className="w-full rounded-lg border border-[#2A2A2A]" />
             </div>
             <div className="space-y-3 text-neutral-300">
-              <p>위 스크린샷과 같이 왼쪽 사이드바에서 <strong>"Get API key"</strong> 버튼을 클릭하여 API 키 생성 페이지로 이동합니다.</p>
+              <p>위 스크린샷과 같이 왼쪽 사이드바에서 <strong>"API ? ??"</strong> 버튼을 클릭하여 API 키 생성 페이지로 이동합니다.</p>
               <p className="font-semibold">순서:</p>
               <p>No Cloud Projects Available 클릭하면, 아래 'Create project'가 나옵니다.</p>
               <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-3 mt-3">
@@ -117,7 +117,7 @@ const ApiGuidePage: React.FC = () => {
               <h2 className="text-2xl font-bold text-white">프로젝트 만들기 2</h2>
             </div>
             <div className="mb-4">
-              <img src="/images/api 3.png" alt="Create API key 버튼 클릭" className="w-full rounded-lg border border-[#2A2A2A]" />
+              <img src="/images/api 3.png" alt="API ? ??? 버튼 클릭" className="w-full rounded-lg border border-[#2A2A2A]" />
             </div>
             <div className="space-y-3 text-neutral-300">
               <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-3">
