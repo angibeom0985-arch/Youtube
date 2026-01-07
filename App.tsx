@@ -49,7 +49,6 @@ import FloatingAnchorAd from "./components/FloatingAnchorAd";
 import SidebarAds from "./components/SidebarAds";
 import { highlightImportantText } from "./utils/textHighlight.tsx";
 import { useNavigate } from "react-router-dom";
-import { fetchTranscript } from "./services/transcriptService";
 import { evaluateAbuseRisk, type AbuseDecision } from "./services/abuseService";
 
 const defaultCategories = [
@@ -161,9 +160,6 @@ const App: React.FC = () => {
   const [newKeyword, setNewKeyword] = useState<string>("");
   const [userIdeaKeyword, setUserIdeaKeyword] = useState<string>("");
   const [appliedIdeaKeyword, setAppliedIdeaKeyword] = useState<string>("");
-  const [isFetchingTranscript, setIsFetchingTranscript] = useState<boolean>(false);
-  const transcriptFetchTimer = useRef<number | null>(null);
-  const lastFetchedUrlRef = useRef<string>("");
 
   // localStorage에서 저장된 데이터 복원
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(() => {
@@ -260,189 +256,7 @@ const App: React.FC = () => {
   };
 
   // 카테고리 순서 저장
-  useEffect(() => {
-    localStorage.setItem("categoriesOrder", JSON.stringify(categories));
-  }, [categories]);
-
-  // 분석 결과 저장 (localStorage)
-  useEffect(() => {
-    if (analysisResult) {
-      localStorage.setItem("analysisResult", JSON.stringify(analysisResult));
-      localStorage.setItem("lastAnalysisTimestamp", Date.now().toString());
-    }
-  }, [analysisResult]);
-
-  // 생성된 기획안 저장 (localStorage)
-  useEffect(() => {
-    if (newPlan) {
-      localStorage.setItem("newPlan", JSON.stringify(newPlan));
-      localStorage.setItem("lastPlanTimestamp", Date.now().toString());
-    }
-  }, [newPlan]);
-
-  // 추천 아이디어 저장 (localStorage)
-  useEffect(() => {
-    if (suggestedIdeas.length > 0) {
-      localStorage.setItem("suggestedIdeas", JSON.stringify(suggestedIdeas));
-    }
-  }, [suggestedIdeas]);
-
-  // 트랜스크립트 저장
-  useEffect(() => {
-    if (transcript) {
-      localStorage.setItem("lastTranscript", transcript);
-    }
-  }, [transcript]);
-
-  // YouTube URL 저장
-  useEffect(() => {
-    if (youtubeUrl) {
-      localStorage.setItem("lastYoutubeUrl", youtubeUrl);
-    }
-  }, [youtubeUrl]);
-
-  // 등장인물 색상 복원
-  useEffect(() => {
-    if (newPlan && newPlan.characters) {
-      const colorMap = new Map<string, string>();
-      newPlan.characters.forEach((char, idx) => {
-        colorMap.set(char, characterColors[idx % characterColors.length]);
-      });
-      setCharacterColorMap(colorMap);
-    }
-  }, [newPlan]);
-
-  useEffect(() => {
-    if (newKeyword) {
-      localStorage.setItem("lastNewKeyword", newKeyword);
-    }
-  }, [newKeyword]);
-
-  // 페이지 로드 시 저장된 데이터 복원 (24시간 이내)
-  useEffect(() => {
-    const restoreData = () => {
-      const now = Date.now();
-      const maxAge = 24 * 60 * 60 * 1000; // 24시간
-
-      // 분석 결과 복원
-      const savedAnalysis = localStorage.getItem("lastAnalysisResult");
-      const analysisTimestamp = localStorage.getItem("lastAnalysisTimestamp");
-      if (savedAnalysis && analysisTimestamp) {
-        const age = now - parseInt(analysisTimestamp);
-        if (age < maxAge) {
-          try {
-            setAnalysisResult(JSON.parse(savedAnalysis));
-          } catch (e) {
-            console.error("Failed to restore analysis result:", e);
-          }
-        }
-      }
-
-      // 새 기획안 복원
-      const savedPlan = localStorage.getItem("lastNewPlan");
-      const planTimestamp = localStorage.getItem("lastNewPlanTimestamp");
-      if (savedPlan && planTimestamp) {
-        const age = now - parseInt(planTimestamp);
-        if (age < maxAge) {
-          try {
-            setNewPlan(JSON.parse(savedPlan));
-          } catch (e) {
-            console.error("Failed to restore new plan:", e);
-          }
-        }
-      }
-
-      // 아이디어 복원
-      const savedIdeas = localStorage.getItem("lastSuggestedIdeas");
-      if (savedIdeas) {
-        try {
-          setSuggestedIdeas(JSON.parse(savedIdeas));
-        } catch (e) {
-          console.error("Failed to restore ideas:", e);
-        }
-      }
-
-      // 입력값 복원
-      const savedTranscript = localStorage.getItem("lastTranscript");
-      if (savedTranscript) {
-        setTranscript(savedTranscript);
-      }
-
-      const savedUrl = localStorage.getItem("lastYoutubeUrl");
-      if (savedUrl) {
-        setYoutubeUrl(savedUrl);
-      }
-
-      const savedKeyword = localStorage.getItem("lastNewKeyword");
-      if (savedKeyword) {
-        setNewKeyword(savedKeyword);
-      }
-    };
-
-    restoreData();
-  }, []); // 최초 한 번만 실행
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const runAbuseCheck = async () => {
-      try {
-        const decision = await evaluateAbuseRisk();
-        if (!cancelled) {
-          setAbuseDecision(decision);
-        }
-      } catch (error) {
-        console.error("Abuse check failed:", error);
-        if (!cancelled) {
-          setAbuseDecision({ label: "suspicious", reason: "check_failed" });
-        }
-      }
-    };
-
-    runAbuseCheck();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // 유튜브 URL 입력 시 자동으로 자막(대본) 가져오기
-  useEffect(() => {
-    const trimmed = youtubeUrl.trim();
-
-    if (transcriptFetchTimer.current) {
-      clearTimeout(transcriptFetchTimer.current);
-    }
-
-    if (!trimmed) {
-      setTranscript("");
-      lastFetchedUrlRef.current = "";
-      return;
-    }
-
-    transcriptFetchTimer.current = window.setTimeout(async () => {
-      if (trimmed === lastFetchedUrlRef.current) {
-        return;
-      }
-      setIsFetchingTranscript(true);
-      try {
-        const result = await fetchTranscript(trimmed);
-        setTranscript(result.text.trim());
-        lastFetchedUrlRef.current = trimmed;
-      } catch (error: any) {
-        console.error("Transcript auto-fetch failed:", error);
-      } finally {
-        setIsFetchingTranscript(false);
-      }
-    }, 700);
-
-    return () => {
-      if (transcriptFetchTimer.current) {
-        clearTimeout(transcriptFetchTimer.current);
-      }
-    };
-  }, [youtubeUrl]);
-
+  
   useEffect(() => {
     const fetchVideoDetails = async () => {
       const trimmedUrl = youtubeUrl.trim();
@@ -1447,7 +1261,7 @@ const App: React.FC = () => {
                       } as React.CSSProperties
                     }
                   />
-                  {(isFetchingDetails || isFetchingTranscript) && (
+                  {isFetchingDetails && (
                     <div className="absolute inset-y-0 right-3 flex items-center pr-1">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
                     </div>
