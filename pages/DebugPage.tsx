@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import App from "../App";
+import ImageApp from "../image/App";
 import { FiEye, FiEyeOff, FiHome } from "react-icons/fi";
 
 type LoginState = "checking" | "loggedOut" | "loggedIn";
+type DebugMode = "script" | "image";
 
-const DebugPage: React.FC = () => {
+interface DebugPageProps {
+  mode: DebugMode;
+}
+
+const DebugPage: React.FC<DebugPageProps> = ({ mode }) => {
   const [loginState, setLoginState] = useState<LoginState>("checking");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -134,7 +140,11 @@ const DebugPage: React.FC = () => {
     );
   }
 
-  return <App allowDevtools />;
+  return mode === "image" ? (
+    <ImageApp basePath="/debug/image" />
+  ) : (
+    <App allowDevtools />
+  );
 };
 
 export default DebugPage;
