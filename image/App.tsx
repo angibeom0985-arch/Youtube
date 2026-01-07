@@ -1345,7 +1345,7 @@ const App: React.FC<ImageAppProps> = ({
         <MetaTags
           title="유튜브 이미지 생성기 사용법 가이드 - AI로 콘텐츠 제작하기"
           description="AI를 활용하여 유튜브 페르소나와 영상 소스를 생성하는 방법을 상세히 알려드립니다. 단계별 가이드로 쉽게 따라하세요."
-          url="https://youtube.money-hotissue.com/image/user-guide"
+          url={`${normalizedBasePath || "/image"}/user-guide`}
           image="/user-guide-preview.png"
           type="article"
         />
@@ -1362,7 +1362,7 @@ const App: React.FC<ImageAppProps> = ({
       <MetaTags
         title="유튜브 롱폼 이미지 생성기 - AI로 캐릭터와 스토리보드 만들기"
         description="Google Gemini AI를 활용해 유튜브 콘텐츠용 페르소나와 영상 소스를 쉽고 빠르게 생성하세요. 다양한 비율(9:16, 16:9, 1:1) 지원."
-        url="https://youtube.money-hotissue.com/image"
+        url={normalizedBasePath || "/image"}
         image="/og-image.png"
         type="website"
       />
