@@ -30,18 +30,18 @@ const DownloadPage: React.FC = () => {
   };
 
   const buildScriptContent = () => {
-    const baseContent = content || "??? ????.";
+    const baseContent = content || "대본이 없습니다.";
     return includeTimestamp ? baseContent : removeTimestampsFromText(baseContent);
   };
 
   const buildImagePromptContent = () => {
-    return imagePrompts || "??? ????? ????.";
+    return imagePrompts || "이미지 프롬프트가 없습니다.";
   };
 
   const applyMetadata = (text: string) => {
     if (!includeMetadata) return text;
-    const metaTitle = title ? `??: ${title}` : "??: ????";
-    const metaDate = `???: ${new Date().toLocaleString("ko-KR")}`;
+    const metaTitle = title ? `제목: ${title}` : "제목: 다운로드";
+    const metaDate = `생성일: ${new Date().toLocaleString("ko-KR")}`;
     return `${metaTitle}\n${metaDate}\n\n${text}`;
   };
 
@@ -55,18 +55,11 @@ const DownloadPage: React.FC = () => {
     } else if (downloadType === "both") {
       finalContent =
         buildScriptContent() +
-        "
-
-" +
+        "\n\n" +
         "=".repeat(50) +
-        "
-
-??? ?? ????
-" +
+        "\n\n이미지 생성 프롬프트\n" +
         "=".repeat(50) +
-        "
-
-" +
+        "\n\n" +
         buildImagePromptContent();
     }
 
@@ -74,7 +67,7 @@ const DownloadPage: React.FC = () => {
       finalContent = "내용이 없습니다.";
     }
 
-        finalContent = applyMetadata(finalContent);
+    finalContent = applyMetadata(finalContent);
 
     const blob = new Blob([finalContent], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
