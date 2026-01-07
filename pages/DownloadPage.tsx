@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export interface DownloadOptions {
@@ -11,21 +11,81 @@ export interface DownloadOptions {
 const DownloadPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { title, content, imagePrompts } = location.state || {};
+  const locationState = (location.state || {}) as {
+    title?: string;
+    content?: string;
+    imagePrompts?: string;
+  };
+
+  const [payload, setPayload] = useState<{
+    title?: string;
+    content?: string;
+    imagePrompts?: string;
+  }>({});
 
   const [format, setFormat] = useState<"txt" | "md" | "pdf">("txt");
   const [includeMetadata, setIncludeMetadata] = useState(true);
   const [includeTimestamp, setIncludeTimestamp] = useState(true);
   const [downloadType, setDownloadType] = useState<"script" | "imagePrompts" | "both">("script");
+  const [offerwallComplete, setOfferwallComplete] = useState(false);
+  const [autoTriggered, setAutoTriggered] = useState(false);
+
+  const offerwallQueryComplete = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("offerwall") === "complete";
+  }, [location.search]);
 
   useEffect(() => {
-    if (!content && !imagePrompts) {
-      // 다운로드할 데이터가 없으면 홈으로 리다이렉트
-      navigate("/");
+    if (locationState.content || locationState.imagePrompts) {
+      setPayload(locationState);
+      sessionStorage.setItem("download_payload", JSON.stringify(locationState));
+      return;
     }
-  }, [content, imagePrompts, navigate]);
+
+    const cached = sessionStorage.getItem("download_payload");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as typeof payload;
+        setPayload(parsed);
+        return;
+      } catch (error) {
+        sessionStorage.removeItem("download_payload");
+      }
+    }
+
+    navigate("/");
+  }, [locationState, navigate]);
+
+  useEffect(() => {
+    if (offerwallQueryComplete) {
+      sessionStorage.setItem("offerwall_complete", "1");
+      setOfferwallComplete(true);
+      return;
+    }
+
+    if (sessionStorage.getItem("offerwall_complete") === "1") {
+      setOfferwallComplete(true);
+    }
+  }, [offerwallQueryComplete]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event?.data?.type === "OFFERWALL_COMPLETE") {
+        sessionStorage.setItem("offerwall_complete", "1");
+        setOfferwallComplete(true);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   const handleDownload = () => {
+    if (!offerwallComplete) {
+      return;
+    }
+
+    const { title, content, imagePrompts } = payload;
     let finalContent = "";
     
     if (downloadType === "script") {
@@ -61,11 +121,20 @@ const DownloadPage: React.FC = () => {
 
     // 다운로드 후 홈으로 돌아가기
     setTimeout(() => {
+      sessionStorage.removeItem("offerwall_complete");
+      sessionStorage.removeItem("download_payload");
       navigate("/");
     }, 500);
   };
 
-  if (!content && !imagePrompts) {
+  useEffect(() => {
+    if (offerwallComplete && !autoTriggered) {
+      setAutoTriggered(true);
+      handleDownload();
+    }
+  }, [offerwallComplete, autoTriggered]);
+
+  if (!payload.content && !payload.imagePrompts) {
     return null;
   }
 
@@ -212,6 +281,12 @@ const DownloadPage: React.FC = () => {
         </div>
 
         {/* 액션 버튼 */}
+        {!offerwallComplete && (
+          <div className="mb-6 p-4 rounded-lg border border-yellow-500/40 bg-yellow-900/20 text-yellow-200 text-sm">
+            Offerwall required. Waiting for completion signal.
+          </div>
+        )}
+
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/")}
@@ -221,6 +296,7 @@ const DownloadPage: React.FC = () => {
           </button>
           <button
             onClick={handleDownload}
+            disabled={!offerwallComplete}
             className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-[0_0_20px_rgba(217,0,0,0.4)] hover:shadow-[0_0_30px_rgba(217,0,0,0.6)] flex items-center justify-center gap-2"
           >
             <svg
