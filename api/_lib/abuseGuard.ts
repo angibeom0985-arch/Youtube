@@ -26,28 +26,56 @@ const BLOCKED_ACTIONS = new Set([
   "generateChapterScript",
 ]);
 
-export const enforceAbusePolicy = async (req: VercelRequest, action: string) => {
+const fetchLatestRisk = async (ipHash: string | null, fingerprintHash: string | null) => {
+  const candidates: Array<{ risk_label: string | null; created_at: string }> = [];
+
+  if (ipHash) {
+    const { data } = await supabaseAdmin
+      .from("abuse_events")
+      .select("risk_label, created_at")
+      .eq("ip_hash", ipHash)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) candidates.push(data);
+  }
+
+  if (fingerprintHash) {
+    const { data } = await supabaseAdmin
+      .from("abuse_events")
+      .select("risk_label, created_at")
+      .eq("fingerprint_hash", fingerprintHash)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) candidates.push(data);
+  }
+
+  if (candidates.length === 0) return null;
+  candidates.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  return candidates[0].risk_label || null;
+};
+
+export const enforceAbusePolicy = async (
+  req: VercelRequest,
+  action: string,
+  clientFingerprint?: string | null
+) => {
   const ip = getClientIp(req);
   const ipHash = hashValue(ip);
+  const fingerprintHash = hashValue(clientFingerprint || null);
 
-  if (!ipHash) {
+  if (!ipHash && !fingerprintHash) {
     return { allowed: true };
   }
 
-  const { data, error } = await supabaseAdmin
-    .from("abuse_events")
-    .select("risk_label, created_at")
-    .eq("ip_hash", ipHash)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
+  let label: string | null = null;
+  try {
+    label = await fetchLatestRisk(ipHash, fingerprintHash);
+  } catch (error) {
     console.error("Abuse policy lookup failed", error);
     return { allowed: true };
   }
-
-  const label = data?.risk_label;
   if (label == "abusive") {
     return { allowed: false, status: 403, reason: "abuse_blocked" };
   }

@@ -16,6 +16,9 @@ type ClientInfo = {
   fingerprintData: Record<string, unknown>;
 };
 
+const fingerprintStorageKey = "client_fingerprint";
+const fingerprintDataStorageKey = "client_fingerprint_data";
+
 const getBrowserName = (ua: string): string => {
   const uaLower = ua.toLowerCase();
   if (uaLower.includes("edg/")) return "Edge";
@@ -87,12 +90,26 @@ const fetchPublicIp = async (): Promise<string | null> => {
   return null;
 };
 
+export const getClientFingerprint = async (): Promise<string> => {
+  const cached = sessionStorage.getItem(fingerprintStorageKey);
+  if (cached) return cached;
+
+  const fingerprintData = getFingerprintData();
+  const fingerprint = await hashString(JSON.stringify(fingerprintData));
+  sessionStorage.setItem(fingerprintStorageKey, fingerprint);
+  sessionStorage.setItem(fingerprintDataStorageKey, JSON.stringify(fingerprintData));
+  return fingerprint;
+};
+
 export const collectClientInfo = async (): Promise<ClientInfo> => {
   const userAgent = navigator.userAgent || "";
   const browser = getBrowserName(userAgent);
   const os = getOsName(userAgent);
-  const fingerprintData = getFingerprintData();
-  const fingerprint = await hashString(JSON.stringify(fingerprintData));
+  const fingerprint = await getClientFingerprint();
+  const cachedFingerprintData = sessionStorage.getItem(fingerprintDataStorageKey);
+  const fingerprintData = cachedFingerprintData
+    ? (JSON.parse(cachedFingerprintData) as Record<string, unknown>)
+    : getFingerprintData();
   const ip = await fetchPublicIp();
 
   return {

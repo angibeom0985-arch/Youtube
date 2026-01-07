@@ -9,6 +9,7 @@ import {
   generateChapterScript,
 } from "./_lib/chapterService";
 import { enforceAbusePolicy } from "./_lib/abuseGuard";
+import { enforceUsageLimit, recordUsageEvent } from "./_lib/usageLimit";
 
 type RateEntry = {
   count: number;
@@ -96,17 +97,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const action = body?.action as string | undefined;
   const payload = body?.payload as Record<string, unknown> | undefined;
+  const clientFingerprint =
+    typeof body?.client?.fingerprint === "string" ? body.client.fingerprint : null;
 
   if (!action || !payload) {
     res.status(400).send("invalid_request");
     return;
   }
 
-  const guard = await enforceAbusePolicy(req, action);
+  const guard = await enforceAbusePolicy(req, action, clientFingerprint);
   if (!guard.allowed) {
     res.status(guard.status || 403).send(guard.reason || "abuse_blocked");
     return;
   }
+
+  const usage = await enforceUsageLimit(req, clientFingerprint);
+  if (!usage.allowed) {
+    if (usage.retryAfterSeconds) {
+      res.setHeader("Retry-After", usage.retryAfterSeconds.toString());
+    }
+    res.status(usage.status || 429).send(usage.reason || "usage_limit");
+    return;
+  }
+
+  await recordUsageEvent(req, action, clientFingerprint);
 
   try {
     switch (action) {

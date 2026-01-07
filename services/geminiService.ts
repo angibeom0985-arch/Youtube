@@ -1,4 +1,5 @@
 import type { AnalysisResult, NewPlan } from "../types";
+import { getClientFingerprint } from "./abuseService";
 
 type GeminiAction =
   | "analyzeTranscript"
@@ -31,10 +32,18 @@ const toUserMessage = (raw: string): string => {
 };
 
 const callGemini = async <T>(action: GeminiAction, payload: Record<string, unknown>): Promise<T> => {
+  let clientPayload: { fingerprint: string } | undefined;
+  try {
+    const fingerprint = await getClientFingerprint();
+    clientPayload = { fingerprint };
+  } catch (error) {
+    clientPayload = undefined;
+  }
+
   const response = await fetch("/api/gemini", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, payload }),
+    body: JSON.stringify({ action, payload, client: clientPayload }),
   });
 
   if (!response.ok) {
