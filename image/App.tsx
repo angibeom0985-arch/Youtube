@@ -1,4 +1,4 @@
-ï»¿import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { compressImage, canStoreInLocalStorage } from "./utils/imageCompression";
 import {
@@ -53,33 +53,33 @@ const App: React.FC<ImageAppProps> = ({
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
   const [imageStyle, setImageStyle] = useState<"realistic" | "animation">(
     "realistic"
-  ); // ê¸°ì¡´ ì´ë¯¸ì§€ ìŠ¤íƒ€ì¼ (ì‹¤ì‚¬/ì• ë‹ˆë©”ì´ì…˜)
-  const [personaStyle, setPersonaStyle] = useState<ImageStyle>("ì‹¤ì‚¬ ê·¹ëŒ€í™”"); // ê¸°ì¡´ í˜ë¥´ì†Œë‚˜ ìŠ¤íƒ€ì¼ (í˜¸í™˜ì„± ìœ ì§€)
+  ); // ±âÁ¸ ÀÌ¹ÌÁö ½ºÅ¸ÀÏ (½Ç»ç/¾Ö´Ï¸ŞÀÌ¼Ç)
+  const [personaStyle, setPersonaStyle] = useState<ImageStyle>("½Ç»ç ±Ø´ëÈ­"); // ±âÁ¸ Æä¸£¼Ò³ª ½ºÅ¸ÀÏ (È£È¯¼º À¯Áö)
   const [characterStyle, setCharacterStyle] =
-    useState<CharacterStyle>("ì‹¤ì‚¬ ê·¹ëŒ€í™”"); // ì¸ë¬¼ ìŠ¤íƒ€ì¼
+    useState<CharacterStyle>("½Ç»ç ±Ø´ëÈ­"); // ÀÎ¹° ½ºÅ¸ÀÏ
   const [backgroundStyle, setBackgroundStyle] =
-    useState<BackgroundStyle>("ëª¨ë˜"); // ë°°ê²½/ë¶„ìœ„ê¸° ìŠ¤íƒ€ì¼
-  const [customCharacterStyle, setCustomCharacterStyle] = useState<string>(""); // ì»¤ìŠ¤í…€ ì¸ë¬¼ ìŠ¤íƒ€ì¼
+    useState<BackgroundStyle>("¸ğ´ø"); // ¹è°æ/ºĞÀ§±â ½ºÅ¸ÀÏ
+  const [customCharacterStyle, setCustomCharacterStyle] = useState<string>(""); // Ä¿½ºÅÒ ÀÎ¹° ½ºÅ¸ÀÏ
   const [customBackgroundStyle, setCustomBackgroundStyle] =
-    useState<string>(""); // ì»¤ìŠ¤í…€ ë°°ê²½ ìŠ¤íƒ€ì¼
-  const [customStyle, setCustomStyle] = useState<string>(""); // ì»¤ìŠ¤í…€ ìŠ¤íƒ€ì¼ ì…ë ¥ (ê¸°ì¡´ í˜¸í™˜ì„±)
+    useState<string>(""); // Ä¿½ºÅÒ ¹è°æ ½ºÅ¸ÀÏ
+  const [customStyle, setCustomStyle] = useState<string>(""); // Ä¿½ºÅÒ ½ºÅ¸ÀÏ ÀÔ·Â (±âÁ¸ È£È¯¼º)
   const [photoComposition, setPhotoComposition] =
-    useState<PhotoComposition>("ì •ë©´"); // ì‚¬ì§„ êµ¬ë„
-  const [customPrompt, setCustomPrompt] = useState<string>(""); // ì»¤ìŠ¤í…€ ì´ë¯¸ì§€ í”„ë¡¬í”„íŠ¸
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9"); // ì´ë¯¸ì§€ ë¹„ìœ¨ ì„ íƒ
-  const [personaInput, setPersonaInput] = useState<string>(""); // í˜ë¥´ì†Œë‚˜ ìƒì„±ìš© ì…ë ¥
-  const [videoSourceScript, setVideoSourceScript] = useState<string>(""); // ì˜ìƒ ì†ŒìŠ¤ìš© ëŒ€ë³¸
-  const [subtitleEnabled, setSubtitleEnabled] = useState<boolean>(false); // ìë§‰ í¬í•¨ ì—¬ë¶€ - ê¸°ë³¸ OFF
+    useState<PhotoComposition>("Á¤¸é"); // »çÁø ±¸µµ
+  const [customPrompt, setCustomPrompt] = useState<string>(""); // Ä¿½ºÅÒ ÀÌ¹ÌÁö ÇÁ·ÒÇÁÆ®
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9"); // ÀÌ¹ÌÁö ºñÀ² ¼±ÅÃ
+  const [personaInput, setPersonaInput] = useState<string>(""); // Æä¸£¼Ò³ª »ı¼º¿ë ÀÔ·Â
+  const [videoSourceScript, setVideoSourceScript] = useState<string>(""); // ¿µ»ó ¼Ò½º¿ë ´ëº»
+  const [subtitleEnabled, setSubtitleEnabled] = useState<boolean>(false); // ÀÚ¸· Æ÷ÇÔ ¿©ºÎ - ±âº» OFF
   const [personaReferenceImage, setPersonaReferenceImage] = useState<
     string | null
-  >(null); // í˜ë¥´ì†Œë‚˜ìš© ì°¸ì¡° ì´ë¯¸ì§€ (ì„ íƒì‚¬í•­)
-  const [referenceImage, setReferenceImage] = useState<string | null>(null); // ì˜ìƒ ì†ŒìŠ¤ìš© ì°¸ì¡° ì´ë¯¸ì§€
+  >(null); // Æä¸£¼Ò³ª¿ë ÂüÁ¶ ÀÌ¹ÌÁö (¼±ÅÃ»çÇ×)
+  const [referenceImage, setReferenceImage] = useState<string | null>(null); // ¿µ»ó ¼Ò½º¿ë ÂüÁ¶ ÀÌ¹ÌÁö
   const [characters, setCharacters] = useState<Character[]>([]);
   const [videoSource, setVideoSource] = useState<VideoSourceImage[]>([]);
   const [imageCount, setImageCount] = useState<number>(5);
   const [isLoadingCharacters, setIsLoadingCharacters] =
     useState<boolean>(false);
-  const [loadingProgress, setLoadingProgress] = useState<string>(""); // ë¡œë”© ì§„í–‰ ìƒí™© ë©”ì‹œì§€
+  const [loadingProgress, setLoadingProgress] = useState<string>(""); // ·Îµù ÁøÇà »óÈ² ¸Ş½ÃÁö
   const [isLoadingVideoSource, setIsLoadingVideoSource] =
     useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
@@ -92,19 +92,19 @@ const App: React.FC<ImageAppProps> = ({
   const [isContentWarningAcknowledged, setIsContentWarningAcknowledged] =
     useState<boolean>(false);
   const [hasContentWarning, setHasContentWarning] = useState<boolean>(false);
-  const [hoveredStyle, setHoveredStyle] = useState<string | null>(null); // í˜¸ë²„ëœ ìŠ¤íƒ€ì¼
+  const [hoveredStyle, setHoveredStyle] = useState<string | null>(null); // È£¹öµÈ ½ºÅ¸ÀÏ
   
-  // ì¹´ë©”ë¼ ì•µê¸€ ê¸°ëŠ¥ ê´€ë ¨ state
+  // Ä«¸Ş¶ó ¾Ş±Û ±â´É °ü·Ã state
   const [cameraAngleSourceImage, setCameraAngleSourceImage] = useState<string | null>(null);
   const [selectedCameraAngles, setSelectedCameraAngles] = useState<CameraAngle[]>([
     'Front View', 'Right Side View', 'Left Side View', 'Back View', 'Full Body', 'Close-up Face'
-  ]); // ê¸°ë³¸ê°’: ì „ì²´ ì„ íƒ
+  ]); // ±âº»°ª: ÀüÃ¼ ¼±ÅÃ
   const [cameraAngles, setCameraAngles] = useState<CameraAngleImage[]>([]);
   const [isLoadingCameraAngles, setIsLoadingCameraAngles] = useState<boolean>(false);
   const [cameraAngleProgress, setCameraAngleProgress] = useState<string>("");
   const [cameraAngleError, setCameraAngleError] = useState<string | null>(null);
 
-  // URL ê¸°ë°˜ í˜„ì¬ ë·° ê²°ì •
+  // URL ±â¹İ ÇöÀç ºä °áÁ¤
   useEffect(() => {
     const path = decodeURIComponent(location.pathname);
     const relativePath =
@@ -114,7 +114,7 @@ const App: React.FC<ImageAppProps> = ({
 
     if (
       relativePath === "/user-guide" ||
-      (relativePath.includes("ì‚¬ìš©ë²•") && relativePath.includes("ê°€ì´ë“œ"))
+      (relativePath.includes("»ç¿ë¹ı") && relativePath.includes("°¡ÀÌµå"))
     ) {
       setCurrentView("user-guide");
     } else if (relativePath === "/image-prompt") {
@@ -140,23 +140,23 @@ const App: React.FC<ImageAppProps> = ({
     [navigate, normalizedBasePath]
   );
 
-  // ì»´í¬ë„ŒíŠ¸ ë§ˆìš´íŠ¸ ì‹œ ì €ì¥ëœ ì‘ì—… ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸° (localStorage ìš°ì„ , ì—†ìœ¼ë©´ sessionStorage)
+  // ÄÄÆ÷³ÍÆ® ¸¶¿îÆ® ½Ã ÀúÀåµÈ ÀÛ¾÷ µ¥ÀÌÅÍ ºÒ·¯¿À±â (localStorage ¿ì¼±, ¾øÀ¸¸é sessionStorage)
   useEffect(() => {
     try {
       let savedData = localStorage.getItem("youtube_image_work_data");
       let source = "localStorage";
       
-      // localStorageì— ì—†ìœ¼ë©´ sessionStorage í™•ì¸
+      // localStorage¿¡ ¾øÀ¸¸é sessionStorage È®ÀÎ
       if (!savedData) {
         savedData = sessionStorage.getItem("youtube_image_work_data");
         source = "sessionStorage";
       }
       
-      console.log(`ğŸ” ${source}ì—ì„œ ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸° ì‹œë„...`, savedData ? `${savedData.length} bytes` : "ì—†ìŒ");
+      console.log(`?? ${source}¿¡¼­ µ¥ÀÌÅÍ ºÒ·¯¿À±â ½Ãµµ...`, savedData ? `${savedData.length} bytes` : "¾øÀ½");
       
       if (savedData) {
         const parsed = JSON.parse(savedData);
-        console.log("ğŸ“¦ íŒŒì‹±ëœ ë°ì´í„°:", {
+        console.log("?? ÆÄ½ÌµÈ µ¥ÀÌÅÍ:", {
           characters: parsed.characters?.length || 0,
           videoSource: parsed.videoSource?.length || 0,
           cameraAngles: parsed.cameraAngles?.length || 0,
@@ -164,42 +164,42 @@ const App: React.FC<ImageAppProps> = ({
           version: parsed.version,
         });
         
-        // ë³µì›ëœ í•­ëª© ì¹´ìš´íŠ¸
+        // º¹¿øµÈ Ç×¸ñ Ä«¿îÆ®
         let restoredCount = 0;
         const restoredItems: string[] = [];
         
         if (parsed.characters && parsed.characters.length > 0) {
           setCharacters(parsed.characters);
           restoredCount++;
-          restoredItems.push(`í˜ë¥´ì†Œë‚˜: ${parsed.characters.length}ê°œ`);
-          console.log("âœ… í˜ë¥´ì†Œë‚˜ ë³µì›:", parsed.characters.length, "ê°œ");
+          restoredItems.push(`Æä¸£¼Ò³ª: ${parsed.characters.length}°³`);
+          console.log("? Æä¸£¼Ò³ª º¹¿ø:", parsed.characters.length, "°³");
         }
         if (parsed.videoSource && parsed.videoSource.length > 0) {
           setVideoSource(parsed.videoSource);
           restoredCount++;
-          restoredItems.push(`ì˜ìƒì†ŒìŠ¤: ${parsed.videoSource.length}ê°œ`);
-          console.log("âœ… ì˜ìƒ ì†ŒìŠ¤ ë³µì›:", parsed.videoSource.length, "ê°œ");
+          restoredItems.push(`¿µ»ó¼Ò½º: ${parsed.videoSource.length}°³`);
+          console.log("? ¿µ»ó ¼Ò½º º¹¿ø:", parsed.videoSource.length, "°³");
         }
         if (parsed.cameraAngles && parsed.cameraAngles.length > 0) {
           setCameraAngles(parsed.cameraAngles);
           restoredCount++;
-          restoredItems.push(`ì¹´ë©”ë¼ì•µê¸€: ${parsed.cameraAngles.length}ê°œ`);
-          console.log("âœ… ì¹´ë©”ë¼ ì•µê¸€ ë³µì›:", parsed.cameraAngles.length, "ê°œ");
+          restoredItems.push(`Ä«¸Ş¶ó¾Ş±Û: ${parsed.cameraAngles.length}°³`);
+          console.log("? Ä«¸Ş¶ó ¾Ş±Û º¹¿ø:", parsed.cameraAngles.length, "°³");
         }
         
-        // ì„¤ì • ë³µì›
+        // ¼³Á¤ º¹¿ø
         if (parsed.personaInput) setPersonaInput(parsed.personaInput);
         if (parsed.videoSourceScript)
           setVideoSourceScript(parsed.videoSourceScript);
         if (parsed.personaReferenceImage) {
           setPersonaReferenceImage(parsed.personaReferenceImage);
-          restoredItems.push("í˜ë¥´ì†Œë‚˜ ì°¸ì¡° ì´ë¯¸ì§€ âœ“");
-          console.log("âœ… í˜ë¥´ì†Œë‚˜ ì°¸ì¡° ì´ë¯¸ì§€ ë³µì›");
+          restoredItems.push("Æä¸£¼Ò³ª ÂüÁ¶ ÀÌ¹ÌÁö ?");
+          console.log("? Æä¸£¼Ò³ª ÂüÁ¶ ÀÌ¹ÌÁö º¹¿ø");
         }
         if (parsed.referenceImage) {
           setReferenceImage(parsed.referenceImage);
-          restoredItems.push("ì˜ìƒì†ŒìŠ¤ ì°¸ì¡° ì´ë¯¸ì§€ âœ“");
-          console.log("âœ… ì˜ìƒì†ŒìŠ¤ ì°¸ì¡° ì´ë¯¸ì§€ ë³µì›");
+          restoredItems.push("¿µ»ó¼Ò½º ÂüÁ¶ ÀÌ¹ÌÁö ?");
+          console.log("? ¿µ»ó¼Ò½º ÂüÁ¶ ÀÌ¹ÌÁö º¹¿ø");
         }
         if (parsed.imageStyle) setImageStyle(parsed.imageStyle);
         if (parsed.personaStyle) setPersonaStyle(parsed.personaStyle);
@@ -219,59 +219,59 @@ const App: React.FC<ImageAppProps> = ({
           setSubtitleEnabled(parsed.subtitleEnabled);
         if (parsed.cameraAngleSourceImage) {
           setCameraAngleSourceImage(parsed.cameraAngleSourceImage);
-          restoredItems.push("ì¹´ë©”ë¼ì•µê¸€ ì›ë³¸ ì´ë¯¸ì§€ âœ“");
-          console.log("âœ… ì¹´ë©”ë¼ ì•µê¸€ ì›ë³¸ ì´ë¯¸ì§€ ë³µì›");
+          restoredItems.push("Ä«¸Ş¶ó¾Ş±Û ¿øº» ÀÌ¹ÌÁö ?");
+          console.log("? Ä«¸Ş¶ó ¾Ş±Û ¿øº» ÀÌ¹ÌÁö º¹¿ø");
         }
         
-        console.log(`ğŸ‰ ì‘ì—… ë°ì´í„° ë³µì› ì™„ë£Œ (from ${source}):`, {
-          í˜ë¥´ì†Œë‚˜: parsed.characters?.length || 0,
-          ì˜ìƒì†ŒìŠ¤: parsed.videoSource?.length || 0,
-          ì¹´ë©”ë¼ì•µê¸€: parsed.cameraAngles?.length || 0,
+        console.log(`?? ÀÛ¾÷ µ¥ÀÌÅÍ º¹¿ø ¿Ï·á (from ${source}):`, {
+          Æä¸£¼Ò³ª: parsed.characters?.length || 0,
+          ¿µ»ó¼Ò½º: parsed.videoSource?.length || 0,
+          Ä«¸Ş¶ó¾Ş±Û: parsed.cameraAngles?.length || 0,
           savedAt: parsed.savedAt ? new Date(parsed.savedAt).toLocaleString('ko-KR') : 'unknown',
         });
         
-        // ë³µì› ì„±ê³µ ì‹œ ì½˜ì†”ì—ë§Œ ë¡œê·¸ (ì•Œë¦¼ì°½ ì œê±°)
+        // º¹¿ø ¼º°ø ½Ã ÄÜ¼Ö¿¡¸¸ ·Î±× (¾Ë¸²Ã¢ Á¦°Å)
         if (restoredCount > 0 || restoredItems.length > 0) {
-          // ë§ˆì§€ë§‰ ì‘ì—… ìœ í˜• íŒŒì•… (ì €ì¥ëœ ê°’ ìš°ì„  ì‚¬ìš©)
+          // ¸¶Áö¸· ÀÛ¾÷ À¯Çü ÆÄ¾Ç (ÀúÀåµÈ °ª ¿ì¼± »ç¿ë)
           let lastWorkType = parsed.lastWorkType || '';
           
-          // lastWorkTypeì´ ì €ì¥ë˜ì§€ ì•Šì€ ê²½ìš° (ì´ì „ ë²„ì „ í˜¸í™˜ì„±)
+          // lastWorkTypeÀÌ ÀúÀåµÇÁö ¾ÊÀº °æ¿ì (ÀÌÀü ¹öÀü È£È¯¼º)
           if (!lastWorkType) {
             if (parsed.cameraAngles?.length > 0) {
-              lastWorkType = 'ì¹´ë©”ë¼ì•µê¸€ ë³€í™˜';
+              lastWorkType = 'Ä«¸Ş¶ó¾Ş±Û º¯È¯';
             } else if (parsed.videoSource?.length > 0) {
-              lastWorkType = 'ì˜ìƒì†ŒìŠ¤ ìƒì„±';
+              lastWorkType = '¿µ»ó¼Ò½º »ı¼º';
             } else if (parsed.characters?.length > 0) {
-              lastWorkType = 'í˜ë¥´ì†Œë‚˜ ìƒì„±';
+              lastWorkType = 'Æä¸£¼Ò³ª »ı¼º';
             }
           }
           
-          const savedTime = parsed.savedAt ? new Date(parsed.savedAt).toLocaleString('ko-KR') : 'ì•Œ ìˆ˜ ì—†ìŒ';
+          const savedTime = parsed.savedAt ? new Date(parsed.savedAt).toLocaleString('ko-KR') : '¾Ë ¼ö ¾øÀ½';
           
-          console.log("ğŸŠ ë³µì› ì™„ë£Œ!");
-          console.log(`ğŸ“Œ ë§ˆì§€ë§‰ ì‘ì—…: ${lastWorkType}`);
-          console.log(`â° ì €ì¥ ì‹œê°: ${savedTime}`);
-          console.log(`ğŸ“¦ ë³µì›ëœ í•­ëª©: ${restoredItems.join(', ')}`);
+          console.log("?? º¹¿ø ¿Ï·á!");
+          console.log(`?? ¸¶Áö¸· ÀÛ¾÷: ${lastWorkType}`);
+          console.log(`? ÀúÀå ½Ã°¢: ${savedTime}`);
+          console.log(`?? º¹¿øµÈ Ç×¸ñ: ${restoredItems.join(', ')}`);
         } else {
-          console.log("â„¹ï¸ ë³µì›í•  ì‘ì—…ë¬¼ì´ ì—†ìŠµë‹ˆë‹¤ (ì„¤ì •ë§Œ ë³µì›ë¨)");
+          console.log("?? º¹¿øÇÒ ÀÛ¾÷¹°ÀÌ ¾ø½À´Ï´Ù (¼³Á¤¸¸ º¹¿øµÊ)");
         }
       } else {
-        console.log("â„¹ï¸ ì €ì¥ëœ ë°ì´í„° ì—†ìŒ (localStorage & sessionStorage ëª¨ë‘)");
+        console.log("?? ÀúÀåµÈ µ¥ÀÌÅÍ ¾øÀ½ (localStorage & sessionStorage ¸ğµÎ)");
       }
     } catch (e) {
-      console.error("âŒ ì‘ì—… ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸° ì‹¤íŒ¨:", e);
-      // ì†ìƒëœ ë°ì´í„° ì‚­ì œ
+      console.error("? ÀÛ¾÷ µ¥ÀÌÅÍ ºÒ·¯¿À±â ½ÇÆĞ:", e);
+      // ¼Õ»óµÈ µ¥ÀÌÅÍ »èÁ¦
       try {
         localStorage.removeItem("youtube_image_work_data");
       } catch (storageError) {
-        console.error("âŒ localStorage ì •ë¦¬ ì‹¤íŒ¨:", storageError);
+        console.error("? localStorage Á¤¸® ½ÇÆĞ:", storageError);
       }
       try {
         sessionStorage.removeItem("youtube_image_work_data");
       } catch (storageError) {
-        console.error("âŒ sessionStorage ì •ë¦¬ ì‹¤íŒ¨:", storageError);
+        console.error("? sessionStorage Á¤¸® ½ÇÆĞ:", storageError);
       }
-      alert("âš ï¸ ì €ì¥ëœ ë°ì´í„°ê°€ ì†ìƒë˜ì–´ ë¶ˆëŸ¬ì˜¬ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.\nìƒˆë¡œ ì‹œì‘í•´ì£¼ì„¸ìš”.");
+      alert("?? ÀúÀåµÈ µ¥ÀÌÅÍ°¡ ¼Õ»óµÇ¾î ºÒ·¯¿Ã ¼ö ¾ø½À´Ï´Ù.\n»õ·Î ½ÃÀÛÇØÁÖ¼¼¿ä.");
     }
   }, []);
 
@@ -282,9 +282,9 @@ const App: React.FC<ImageAppProps> = ({
     }
   }, [initialScript, navigationScript, videoSourceScript]);
 
-  // ì €ì¥ í•¨ìˆ˜ë¥¼ ë³„ë„ë¡œ ë¶„ë¦¬ (ì¦‰ì‹œ ì €ì¥ ê°€ëŠ¥í•˜ë„ë¡)
+  // ÀúÀå ÇÔ¼ö¸¦ º°µµ·Î ºĞ¸® (Áï½Ã ÀúÀå °¡´ÉÇÏµµ·Ï)
   const saveDataToStorage = useCallback(async (immediate = false) => {
-    // ì €ì¥í•  ë°ì´í„°ê°€ ì—†ìœ¼ë©´ ìŠ¤í‚µ
+    // ÀúÀåÇÒ µ¥ÀÌÅÍ°¡ ¾øÀ¸¸é ½ºÅµ
     const hasWorkData =
       characters.length > 0 ||
       videoSource.length > 0 ||
@@ -304,56 +304,56 @@ const App: React.FC<ImageAppProps> = ({
     }
 
     const timestamp = new Date().toLocaleTimeString('ko-KR');
-    console.log(`ğŸ’¾ [${timestamp}] ë°ì´í„° ì €ì¥ ì‹œì‘${immediate ? ' (ì¦‰ì‹œ ì €ì¥)' : ''}:`, {
-      í˜ë¥´ì†Œë‚˜: characters.length,
-      ì˜ìƒì†ŒìŠ¤: videoSource.length,
-      ì¹´ë©”ë¼ì•µê¸€: cameraAngles.length
+    console.log(`?? [${timestamp}] µ¥ÀÌÅÍ ÀúÀå ½ÃÀÛ${immediate ? ' (Áï½Ã ÀúÀå)' : ''}:`, {
+      Æä¸£¼Ò³ª: characters.length,
+      ¿µ»ó¼Ò½º: videoSource.length,
+      Ä«¸Ş¶ó¾Ş±Û: cameraAngles.length
     });
       
     try {
-      // ì´ë¯¸ì§€ ì••ì¶• (ìš©ëŸ‰ ìµœì í™”)
-      console.log(`ğŸ—œï¸ [${timestamp}] ì´ë¯¸ì§€ ì••ì¶• ì‹œì‘...`);
+      // ÀÌ¹ÌÁö ¾ĞÃà (¿ë·® ÃÖÀûÈ­)
+      console.log(`??? [${timestamp}] ÀÌ¹ÌÁö ¾ĞÃà ½ÃÀÛ...`);
       const compressedCharacters = await Promise.all(
         characters.slice(0, 10).map(async (char, idx) => {
-          console.log(`  - í˜ë¥´ì†Œë‚˜ #${idx + 1} ì••ì¶• ì¤‘...`);
+          console.log(`  - Æä¸£¼Ò³ª #${idx + 1} ¾ĞÃà Áß...`);
           return {
             ...char,
             image: char.image ? await compressImage(char.image, 600, 0.6) : char.image,
           };
         })
       );
-      console.log(`âœ… [${timestamp}] í˜ë¥´ì†Œë‚˜ ${compressedCharacters.length}ê°œ ì••ì¶• ì™„ë£Œ`);
+      console.log(`? [${timestamp}] Æä¸£¼Ò³ª ${compressedCharacters.length}°³ ¾ĞÃà ¿Ï·á`);
 
       const compressedVideoSource = await Promise.all(
         videoSource.slice(0, 10).map(async (source, idx) => {
-          console.log(`  - ì˜ìƒì†ŒìŠ¤ #${idx + 1} ì••ì¶• ì¤‘...`);
+          console.log(`  - ¿µ»ó¼Ò½º #${idx + 1} ¾ĞÃà Áß...`);
           return {
             ...source,
             image: source.image ? await compressImage(source.image, 600, 0.6) : source.image,
           };
         })
       );
-      console.log(`âœ… [${timestamp}] ì˜ìƒì†ŒìŠ¤ ${compressedVideoSource.length}ê°œ ì••ì¶• ì™„ë£Œ`);
+      console.log(`? [${timestamp}] ¿µ»ó¼Ò½º ${compressedVideoSource.length}°³ ¾ĞÃà ¿Ï·á`);
 
       const compressedCameraAngles = await Promise.all(
         cameraAngles.slice(0, 10).map(async (angle, idx) => {
-          console.log(`  - ì¹´ë©”ë¼ì•µê¸€ #${idx + 1} ì••ì¶• ì¤‘...`);
+          console.log(`  - Ä«¸Ş¶ó¾Ş±Û #${idx + 1} ¾ĞÃà Áß...`);
           return {
             ...angle,
             image: angle.image ? await compressImage(angle.image, 600, 0.6) : angle.image,
           };
         })
       );
-      console.log(`âœ… [${timestamp}] ì¹´ë©”ë¼ì•µê¸€ ${compressedCameraAngles.length}ê°œ ì••ì¶• ì™„ë£Œ`);
+      console.log(`? [${timestamp}] Ä«¸Ş¶ó¾Ş±Û ${compressedCameraAngles.length}°³ ¾ĞÃà ¿Ï·á`);
 
-      // ë§ˆì§€ë§‰ ì‘ì—… ìœ í˜• ê²°ì • (ê°€ì¥ ìµœê·¼ ì‘ì—…)
+      // ¸¶Áö¸· ÀÛ¾÷ À¯Çü °áÁ¤ (°¡Àå ÃÖ±Ù ÀÛ¾÷)
       let lastWorkType = '';
       if (compressedCameraAngles.length > 0) {
-        lastWorkType = 'ì¹´ë©”ë¼ì•µê¸€ ë³€í™˜';
+        lastWorkType = 'Ä«¸Ş¶ó¾Ş±Û º¯È¯';
       } else if (compressedVideoSource.length > 0) {
-        lastWorkType = 'ì˜ìƒì†ŒìŠ¤ ìƒì„±';
+        lastWorkType = '¿µ»ó¼Ò½º »ı¼º';
       } else if (compressedCharacters.length > 0) {
-        lastWorkType = 'í˜ë¥´ì†Œë‚˜ ìƒì„±';
+        lastWorkType = 'Æä¸£¼Ò³ª »ı¼º';
       }
 
       const dataToSave: any = {
@@ -385,22 +385,22 @@ const App: React.FC<ImageAppProps> = ({
           : null,
         cameraAngles: compressedCameraAngles,
         savedAt: new Date().toISOString(),
-        version: "1.0.0", // ë²„ì „ ì¶”ê°€ë¡œ í˜¸í™˜ì„± ê´€ë¦¬
+        version: "1.0.0", // ¹öÀü Ãß°¡·Î È£È¯¼º °ü¸®
       };
 
-      // lastWorkTypeì´ ìˆëŠ” ê²½ìš°ì—ë§Œ ì¶”ê°€
+      // lastWorkTypeÀÌ ÀÖ´Â °æ¿ì¿¡¸¸ Ãß°¡
       if (lastWorkType) {
         dataToSave.lastWorkType = lastWorkType;
       }
 
       const jsonString = JSON.stringify(dataToSave);
       const sizeInMB = (jsonString.length / 1024 / 1024).toFixed(2);
-      console.log(`ğŸ“Š [${timestamp}] ì €ì¥í•  ë°ì´í„° í¬ê¸°: ${sizeInMB}MB (${jsonString.length} bytes)`);
+      console.log(`?? [${timestamp}] ÀúÀåÇÒ µ¥ÀÌÅÍ Å©±â: ${sizeInMB}MB (${jsonString.length} bytes)`);
 
-      // localStorage ìš©ëŸ‰ ì²´í¬ (4MB ì œí•œ)
+      // localStorage ¿ë·® Ã¼Å© (4MB Á¦ÇÑ)
       if (!canStoreInLocalStorage(jsonString, 4)) {
-        console.warn(`âš ï¸ [${timestamp}] ë°ì´í„°ê°€ ë„ˆë¬´ ì»¤ì„œ ì¼ë¶€ë§Œ ì €ì¥í•©ë‹ˆë‹¤.`);
-        // ìš©ëŸ‰ ì´ˆê³¼ ì‹œ ì¹´ë©”ë¼ ì•µê¸€ ì œì™¸í•˜ê³  ì¬ì‹œë„
+        console.warn(`?? [${timestamp}] µ¥ÀÌÅÍ°¡ ³Ê¹« Ä¿¼­ ÀÏºÎ¸¸ ÀúÀåÇÕ´Ï´Ù.`);
+        // ¿ë·® ÃÊ°ú ½Ã Ä«¸Ş¶ó ¾Ş±Û Á¦¿ÜÇÏ°í Àç½Ãµµ
         const minimalData = {
           ...dataToSave,
           cameraAngles: [],
@@ -408,31 +408,31 @@ const App: React.FC<ImageAppProps> = ({
         const minimalJsonString = JSON.stringify(minimalData);
         
         if (!canStoreInLocalStorage(minimalJsonString, 4)) {
-          console.warn(`âš ï¸ [${timestamp}] ì—¬ì „íˆ ìš©ëŸ‰ ì´ˆê³¼, ì˜ìƒ ì†ŒìŠ¤ë„ ì œì™¸í•©ë‹ˆë‹¤.`);
+          console.warn(`?? [${timestamp}] ¿©ÀüÈ÷ ¿ë·® ÃÊ°ú, ¿µ»ó ¼Ò½ºµµ Á¦¿ÜÇÕ´Ï´Ù.`);
           const veryMinimalData = {
             ...minimalData,
             videoSource: [],
           };
           localStorage.setItem("youtube_image_work_data", JSON.stringify(veryMinimalData));
           sessionStorage.setItem("youtube_image_work_data", JSON.stringify(veryMinimalData));
-          console.log(`âœ… [${timestamp}] ìµœì†Œ ë°ì´í„°ë§Œ ì €ì¥ë¨ (í˜ë¥´ì†Œë‚˜ + ì„¤ì •)`);
+          console.log(`? [${timestamp}] ÃÖ¼Ò µ¥ÀÌÅÍ¸¸ ÀúÀåµÊ (Æä¸£¼Ò³ª + ¼³Á¤)`);
         } else {
           localStorage.setItem("youtube_image_work_data", minimalJsonString);
           sessionStorage.setItem("youtube_image_work_data", minimalJsonString);
-          console.log(`âœ… [${timestamp}] ì¼ë¶€ ë°ì´í„° ì €ì¥ë¨ (ì¹´ë©”ë¼ ì•µê¸€ ì œì™¸)`);
+          console.log(`? [${timestamp}] ÀÏºÎ µ¥ÀÌÅÍ ÀúÀåµÊ (Ä«¸Ş¶ó ¾Ş±Û Á¦¿Ü)`);
         }
       } else {
         localStorage.setItem("youtube_image_work_data", jsonString);
         sessionStorage.setItem("youtube_image_work_data", jsonString);
-        console.log(`âœ… [${timestamp}] ì „ì²´ ë°ì´í„° ì €ì¥ ì™„ë£Œ! (localStorage + sessionStorage ì´ì¤‘ ë°±ì—…)`);
+        console.log(`? [${timestamp}] ÀüÃ¼ µ¥ÀÌÅÍ ÀúÀå ¿Ï·á! (localStorage + sessionStorage ÀÌÁß ¹é¾÷)`);
       }
     } catch (e) {
       if (e instanceof Error && e.name === "QuotaExceededError") {
-        console.error("âŒ localStorage ìš©ëŸ‰ ì´ˆê³¼! ì´ì „ ë°ì´í„°ë¥¼ ì‚­ì œí•©ë‹ˆë‹¤.");
+        console.error("? localStorage ¿ë·® ÃÊ°ú! ÀÌÀü µ¥ÀÌÅÍ¸¦ »èÁ¦ÇÕ´Ï´Ù.");
         localStorage.removeItem("youtube_image_work_data");
         sessionStorage.removeItem("youtube_image_work_data");
         try {
-          // ìµœì†Œ ë°ì´í„°ë§Œ ì €ì¥
+          // ÃÖ¼Ò µ¥ÀÌÅÍ¸¸ ÀúÀå
           const minimalData = {
             personaInput,
             videoSourceScript,
@@ -452,12 +452,12 @@ const App: React.FC<ImageAppProps> = ({
             savedAt: new Date().toISOString(),
           };
           localStorage.setItem("youtube_image_work_data", JSON.stringify(minimalData));
-          console.log("âœ… ì„¤ì • ë°ì´í„°ë§Œ ì €ì¥ë¨");
+          console.log("? ¼³Á¤ µ¥ÀÌÅÍ¸¸ ÀúÀåµÊ");
         } catch (retryError) {
-          console.error("âŒ ì¬ì‹œë„ë„ ì‹¤íŒ¨:", retryError);
+          console.error("? Àç½Ãµµµµ ½ÇÆĞ:", retryError);
         }
       } else {
-        console.error("âŒ ì‘ì—… ë°ì´í„° ì €ì¥ ì‹¤íŒ¨:", e);
+        console.error("? ÀÛ¾÷ µ¥ÀÌÅÍ ÀúÀå ½ÇÆĞ:", e);
       }
     }
   }, [
@@ -484,9 +484,9 @@ const App: React.FC<ImageAppProps> = ({
     cameraAngles,
   ]);
 
-  // ì‘ì—… ë°ì´í„°ê°€ ë³€ê²½ë  ë•Œë§ˆë‹¤ localStorage + sessionStorageì— ì €ì¥ (ì´ì¤‘ ë°±ì—…)
+  // ÀÛ¾÷ µ¥ÀÌÅÍ°¡ º¯°æµÉ ¶§¸¶´Ù localStorage + sessionStorage¿¡ ÀúÀå (ÀÌÁß ¹é¾÷)
   useEffect(() => {
-    // ì´ˆê¸° ë§ˆìš´íŠ¸ ì‹œì—ëŠ” ì €ì¥í•˜ì§€ ì•ŠìŒ (ë°ì´í„° ë¡œë“œ í›„ì—ë§Œ ì €ì¥)
+    // ÃÊ±â ¸¶¿îÆ® ½Ã¿¡´Â ÀúÀåÇÏÁö ¾ÊÀ½ (µ¥ÀÌÅÍ ·Îµå ÈÄ¿¡¸¸ ÀúÀå)
     const hasData =
       characters.length > 0 ||
       videoSource.length > 0 ||
@@ -502,12 +502,12 @@ const App: React.FC<ImageAppProps> = ({
       Boolean(cameraAngleSourceImage);
     
     if (!hasData) {
-      return; // ë°ì´í„°ê°€ ì—†ìœ¼ë©´ ì €ì¥í•˜ì§€ ì•ŠìŒ
+      return; // µ¥ÀÌÅÍ°¡ ¾øÀ¸¸é ÀúÀåÇÏÁö ¾ÊÀ½
     }
     
-    // debounceë¥¼ ìœ„í•´ íƒ€ì´ë¨¸ ì‚¬ìš©
+    // debounce¸¦ À§ÇØ Å¸ÀÌ¸Ó »ç¿ë
     const timer = setTimeout(() => {
-      console.log('ğŸ’¾ ìë™ ì €ì¥ íŠ¸ë¦¬ê±° (1ì´ˆ debounce í›„)');
+      console.log('?? ÀÚµ¿ ÀúÀå Æ®¸®°Å (1ÃÊ debounce ÈÄ)');
       saveDataToStorage(false);
     }, 1000);
 
@@ -528,9 +528,9 @@ const App: React.FC<ImageAppProps> = ({
     cameraAngleSourceImage,
   ]);
 
-  // ë³´ì•ˆ: ë“œë˜ê·¸, ìš°í´ë¦­, ìº¡ì²˜ ë°©ì§€
+  // º¸¾È: µå·¡±×, ¿ìÅ¬¸¯, Ä¸Ã³ ¹æÁö
   useEffect(() => {
-    // ì…ë ¥ í•„ë“œì¸ì§€ í™•ì¸í•˜ëŠ” í—¬í¼ í•¨ìˆ˜
+    // ÀÔ·Â ÇÊµåÀÎÁö È®ÀÎÇÏ´Â ÇïÆÛ ÇÔ¼ö
     const isInputField = (target: EventTarget | null): boolean => {
       if (!target || !(target instanceof HTMLElement)) return false;
       const tagName = target.tagName.toLowerCase();
@@ -541,7 +541,7 @@ const App: React.FC<ImageAppProps> = ({
       );
     };
 
-    // ë“œë˜ê·¸, ì„ íƒ, ìš°í´ë¦­, ë³µì‚¬ ì°¨ë‹¨ (ì…ë ¥ í•„ë“œ ì œì™¸)
+    // µå·¡±×, ¼±ÅÃ, ¿ìÅ¬¸¯, º¹»ç Â÷´Ü (ÀÔ·Â ÇÊµå Á¦¿Ü)
     const preventDefaultExceptInput = (e: Event) => {
       if (!isInputField(e.target)) {
         e.preventDefault();
@@ -566,7 +566,7 @@ const App: React.FC<ImageAppProps> = ({
       capture: true,
     });
 
-    // ë§ˆìš°ìŠ¤ ìš°í´ë¦­ ì°¨ë‹¨ (ë“œë˜ê·¸í”„ë¦¬ë¥˜ ìš°íšŒ ë°©ì§€, ì…ë ¥ í•„ë“œ ì œì™¸)
+    // ¸¶¿ì½º ¿ìÅ¬¸¯ Â÷´Ü (µå·¡±×ÇÁ¸®·ù ¿ìÈ¸ ¹æÁö, ÀÔ·Â ÇÊµå Á¦¿Ü)
     const blockRightClick = (e: MouseEvent) => {
       if (e.button === 2 && !isInputField(e.target)) {
         e.preventDefault();
@@ -577,10 +577,10 @@ const App: React.FC<ImageAppProps> = ({
     document.addEventListener("mousedown", blockRightClick, { capture: true });
     document.addEventListener("mouseup", blockRightClick, { capture: true });
 
-    // CSSë¡œ ì„ íƒ ë°©ì§€ (ì…ë ¥ í•„ë“œëŠ” ìŠ¤íƒ€ì¼ë¡œ ì˜ˆì™¸ ì²˜ë¦¬)
+    // CSS·Î ¼±ÅÃ ¹æÁö (ÀÔ·Â ÇÊµå´Â ½ºÅ¸ÀÏ·Î ¿¹¿Ü Ã³¸®)
     document.body.style.userSelect = "none";
     document.body.style.webkitUserSelect = "none";
-    // ì…ë ¥ í•„ë“œëŠ” ì„ íƒ ê°€ëŠ¥í•˜ë„ë¡ ìŠ¤íƒ€ì¼ ì¶”ê°€
+    // ÀÔ·Â ÇÊµå´Â ¼±ÅÃ °¡´ÉÇÏµµ·Ï ½ºÅ¸ÀÏ Ãß°¡
     const style = document.createElement("style");
     style.textContent = `
       input, textarea, [contenteditable="true"] {
@@ -590,16 +590,16 @@ const App: React.FC<ImageAppProps> = ({
     `;
     document.head.appendChild(style);
 
-    // í‚¤ë³´ë“œ ë‹¨ì¶•í‚¤ ì°¨ë‹¨ (ì…ë ¥ í•„ë“œì—ì„œëŠ” í¸ì§‘ ë‹¨ì¶•í‚¤ í—ˆìš©)
+    // Å°º¸µå ´ÜÃàÅ° Â÷´Ü (ÀÔ·Â ÇÊµå¿¡¼­´Â ÆíÁı ´ÜÃàÅ° Çã¿ë)
     const blockKeys = (e: KeyboardEvent) => {
       const target = e.target;
       const isInput = isInputField(target);
 
-      // ì…ë ¥ í•„ë“œì—ì„œëŠ” ê¸°ë³¸ í¸ì§‘ ë‹¨ì¶•í‚¤ í—ˆìš©
-      // Ctrl+C (ë³µì‚¬), Ctrl+V (ë¶™ì—¬ë„£ê¸°), Ctrl+X (ì˜ë¼ë‚´ê¸°), Ctrl+A (ì „ì²´ì„ íƒ)
-      // Ctrl+Z (ë˜ëŒë¦¬ê¸°), Ctrl+Y (ë‹¤ì‹œì‹¤í–‰), Ctrl+Shift+Z (ë‹¤ì‹œì‹¤í–‰)
+      // ÀÔ·Â ÇÊµå¿¡¼­´Â ±âº» ÆíÁı ´ÜÃàÅ° Çã¿ë
+      // Ctrl+C (º¹»ç), Ctrl+V (ºÙ¿©³Ö±â), Ctrl+X (Àß¶ó³»±â), Ctrl+A (ÀüÃ¼¼±ÅÃ)
+      // Ctrl+Z (µÇµ¹¸®±â), Ctrl+Y (´Ù½Ã½ÇÇà), Ctrl+Shift+Z (´Ù½Ã½ÇÇà)
       if (isInput) {
-        // ì…ë ¥ í•„ë“œì—ì„œ í—ˆìš©í•  ë‹¨ì¶•í‚¤
+        // ÀÔ·Â ÇÊµå¿¡¼­ Çã¿ëÇÒ ´ÜÃàÅ°
         const allowedKeys = [
           "c",
           "v",
@@ -616,41 +616,41 @@ const App: React.FC<ImageAppProps> = ({
         ];
         const key = e.key.toLowerCase();
 
-        // Ctrl+Z, Ctrl+Y, Ctrl+Shift+ZëŠ” í•­ìƒ í—ˆìš©
+        // Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z´Â Ç×»ó Çã¿ë
         if (e.ctrlKey && !e.shiftKey && (key === "z" || key === "y")) {
-          return; // ì´ë²¤íŠ¸ ì •ìƒ ì§„í–‰
+          return; // ÀÌº¥Æ® Á¤»ó ÁøÇà
         }
         if (e.ctrlKey && e.shiftKey && key === "z") {
-          return; // ì´ë²¤íŠ¸ ì •ìƒ ì§„í–‰
+          return; // ÀÌº¥Æ® Á¤»ó ÁøÇà
         }
 
-        // Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+AëŠ” Shift ì—†ì„ ë•Œë§Œ í—ˆìš©
+        // Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A´Â Shift ¾øÀ» ¶§¸¸ Çã¿ë
         if (e.ctrlKey && !e.shiftKey && allowedKeys.includes(e.key)) {
-          return; // ì´ë²¤íŠ¸ ì •ìƒ ì§„í–‰ (ë³µì‚¬/ë¶™ì—¬ë„£ê¸°/ì˜ë¼ë‚´ê¸°/ì „ì²´ì„ íƒ)
+          return; // ÀÌº¥Æ® Á¤»ó ÁøÇà (º¹»ç/ºÙ¿©³Ö±â/Àß¶ó³»±â/ÀüÃ¼¼±ÅÃ)
         }
       }
 
-      // ì €ì¥/ì¸ì‡„/ìº¡ì²˜ ê´€ë ¨ í‚¤ëŠ” ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // ÀúÀå/ÀÎ¼â/Ä¸Ã³ °ü·Ã Å°´Â ¸ğµç °÷¿¡¼­ Â÷´Ü
 
-      // Ctrl+S (í˜ì´ì§€ ì €ì¥) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+S (ÆäÀÌÁö ÀúÀå) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && !e.shiftKey && (e.key === "s" || e.key === "S")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // Ctrl+P (ì¸ì‡„) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+P (ÀÎ¼â) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && !e.shiftKey && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+S (í˜ì´ì§€ ì €ì¥/ìŠ¤í¬ë¡¤ ìº¡ì²˜) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+Shift+S (ÆäÀÌÁö ÀúÀå/½ºÅ©·Ñ Ä¸Ã³) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && e.shiftKey && (e.key === "s" || e.key === "S")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+C (ì§ì ‘ ì§€ì • ìº¡ì²˜) - ì…ë ¥ í•„ë“œ ì œì™¸í•˜ê³  ì°¨ë‹¨
+      // Ctrl+Shift+C (Á÷Á¢ ÁöÁ¤ Ä¸Ã³) - ÀÔ·Â ÇÊµå Á¦¿ÜÇÏ°í Â÷´Ü
       if (
         !isInput &&
         e.ctrlKey &&
@@ -661,19 +661,19 @@ const App: React.FC<ImageAppProps> = ({
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+W (ì°½ ìº¡ì²˜) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+Shift+W (Ã¢ Ä¸Ã³) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && e.shiftKey && (e.key === "w" || e.key === "W")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+D (ë‹¨ìœ„ì˜ì—­ ìº¡ì²˜) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+Shift+D (´ÜÀ§¿µ¿ª Ä¸Ã³) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && e.shiftKey && (e.key === "d" || e.key === "D")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+A (ì „ì²´ìº¡ì²˜) - ì…ë ¥ í•„ë“œ ì œì™¸í•˜ê³  ì°¨ë‹¨
+      // Ctrl+Shift+A (ÀüÃ¼Ä¸Ã³) - ÀÔ·Â ÇÊµå Á¦¿ÜÇÏ°í Â÷´Ü
       if (
         !isInput &&
         e.ctrlKey &&
@@ -684,35 +684,35 @@ const App: React.FC<ImageAppProps> = ({
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+F (ì§€ì •ì‚¬ì´ì¦ˆ ìº¡ì²˜) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+Shift+F (ÁöÁ¤»çÀÌÁî Ä¸Ã³) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && e.shiftKey && (e.key === "f" || e.key === "F")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // PrintScreen í‚¤ - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // PrintScreen Å° - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.key === "PrintScreen") {
         e.preventDefault();
         e.stopPropagation();
-        // í´ë¦½ë³´ë“œ ì§€ìš°ê¸° ì‹œë„
+        // Å¬¸³º¸µå Áö¿ì±â ½Ãµµ
         if (navigator.clipboard) {
           navigator.clipboard.writeText("").catch(() => {});
         }
         return false;
       }
-      // Win+Shift+S (Windows ìŠ¤í¬ë¦°ìƒ· ë„êµ¬) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Win+Shift+S (Windows ½ºÅ©¸°¼¦ µµ±¸) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.shiftKey && e.metaKey && (e.key === "s" || e.key === "S")) {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // F12 (ê°œë°œì ë„êµ¬) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // F12 (°³¹ßÀÚ µµ±¸) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.key === "F12") {
         e.preventDefault();
         e.stopPropagation();
         return false;
       }
-      // Ctrl+Shift+I (ê°œë°œì ë„êµ¬) - ëª¨ë“  ê³³ì—ì„œ ì°¨ë‹¨
+      // Ctrl+Shift+I (°³¹ßÀÚ µµ±¸) - ¸ğµç °÷¿¡¼­ Â÷´Ü
       if (e.ctrlKey && e.shiftKey && (e.key === "i" || e.key === "I")) {
         e.preventDefault();
         e.stopPropagation();
@@ -722,7 +722,7 @@ const App: React.FC<ImageAppProps> = ({
     document.addEventListener("keydown", blockKeys, { capture: true });
     document.addEventListener("keyup", blockKeys, { capture: true });
 
-    // í´ë¦°ì—…
+    // Å¬¸°¾÷
     return () => {
       document.removeEventListener("contextmenu", preventDefaultExceptInput, {
         capture: true,
@@ -749,7 +749,7 @@ const App: React.FC<ImageAppProps> = ({
       document.removeEventListener("keyup", blockKeys, { capture: true });
       document.body.style.userSelect = "";
       document.body.style.webkitUserSelect = "";
-      // ì¶”ê°€í•œ ìŠ¤íƒ€ì¼ ì œê±°
+      // Ãß°¡ÇÑ ½ºÅ¸ÀÏ Á¦°Å
       if (style.parentNode) {
         style.parentNode.removeChild(style);
       }
@@ -757,7 +757,7 @@ const App: React.FC<ImageAppProps> = ({
   }, []);
 
   const openImageInNewWindow = useCallback(
-    (imageData: string, title: string = "ì´ë¯¸ì§€ ë³´ê¸°") => {
+    (imageData: string, title: string = "ÀÌ¹ÌÁö º¸±â") => {
       const imageSrc = imageData.startsWith("data:image")
         ? imageData
         : `data:image/png;base64,${imageData}`;
@@ -846,7 +846,7 @@ const App: React.FC<ImageAppProps> = ({
       const file = event.target.files?.[0];
       if (!file) return;
       if (file.size > 10 * 1024 * 1024) {
-        setError("ì°¸ì¡° ì´ë¯¸ì§€ëŠ” ìµœëŒ€ 10MBê¹Œì§€ ì—…ë¡œë“œí•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+        setError("ÂüÁ¶ ÀÌ¹ÌÁö´Â ÃÖ´ë 10MB±îÁö ¾÷·ÎµåÇÒ ¼ö ÀÖ½À´Ï´Ù.");
         event.target.value = "";
         return;
       }
@@ -870,7 +870,7 @@ const App: React.FC<ImageAppProps> = ({
       const file = event.target.files?.[0];
       if (!file) return;
       if (file.size > 10 * 1024 * 1024) {
-        setCameraAngleError("ì›ë³¸ ì´ë¯¸ì§€ëŠ” ìµœëŒ€ 10MBê¹Œì§€ ì—…ë¡œë“œí•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+        setCameraAngleError("¿øº» ÀÌ¹ÌÁö´Â ÃÖ´ë 10MB±îÁö ¾÷·ÎµåÇÒ ¼ö ÀÖ½À´Ï´Ù.");
         event.target.value = "";
         return;
       }
@@ -889,12 +889,12 @@ const App: React.FC<ImageAppProps> = ({
   const handleGeneratePersonas = useCallback(async () => {
     if (!apiKey.trim()) {
       setPersonaError(
-        "ì„œë²„ API í‚¤ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê´€ë¦¬ìì—ê²Œ ë¬¸ì˜í•´ì£¼ì„¸ìš”."
+        "¼­¹ö API Å°°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ü¸®ÀÚ¿¡°Ô ¹®ÀÇÇØÁÖ¼¼¿ä."
       );
       return;
     }
     if (!personaInput.trim()) {
-      setPersonaError("í˜ë¥´ì†Œë‚˜ ì„¤ëª…ì´ë‚˜ ëŒ€ë³¸ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.");
+      setPersonaError("Æä¸£¼Ò³ª ¼³¸íÀÌ³ª ´ëº»À» ÀÔ·ÂÇØÁÖ¼¼¿ä.");
       return;
     }
 
@@ -907,7 +907,7 @@ const App: React.FC<ImageAppProps> = ({
     setIsLoadingCharacters(true);
     setPersonaError(null);
     setCharacters([]);
-    setLoadingProgress("í˜ë¥´ì†Œë‚˜ ë¶„ì„ ì¤‘...");
+    setLoadingProgress("Æä¸£¼Ò³ª ºĞ¼® Áß...");
 
     try {
       const generatedCharacters = await generateCharacters(
@@ -929,19 +929,19 @@ const App: React.FC<ImageAppProps> = ({
 
       if (generatedCharacters.length === 0) {
         setPersonaError(
-          "í˜ë¥´ì†Œë‚˜ ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤. ì…ë ¥ì„ ë°”ê¿” ë‹¤ì‹œ ì‹œë„í•´ì£¼ì„¸ìš”."
+          "Æä¸£¼Ò³ª »ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù. ÀÔ·ÂÀ» ¹Ù²ã ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä."
         );
       } else {
         setCharacters(generatedCharacters);
-        setPersonaError(`âœ… í˜ë¥´ì†Œë‚˜ ${generatedCharacters.length}ê°œ ìƒì„± ì™„ë£Œ`);
+        setPersonaError(`? Æä¸£¼Ò³ª ${generatedCharacters.length}°³ »ı¼º ¿Ï·á`);
         setTimeout(() => saveDataToStorage(true), 100);
       }
     } catch (e) {
-      console.error("[ê°œë°œììš©] í˜ë¥´ì†Œë‚˜ ìƒì„± ì˜¤ë¥˜:", e);
+      console.error("[°³¹ßÀÚ¿ë] Æä¸£¼Ò³ª »ı¼º ¿À·ù:", e);
       const message =
         e instanceof Error
           ? e.message
-          : "í˜ë¥´ì†Œë‚˜ ìƒì„± ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤.";
+          : "Æä¸£¼Ò³ª »ı¼º Áß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù.";
       setPersonaError(message);
     } finally {
       setIsLoadingCharacters(false);
@@ -974,13 +974,13 @@ const App: React.FC<ImageAppProps> = ({
     ) => {
       if (!apiKey.trim()) {
         setPersonaError(
-          "ì„œë²„ API í‚¤ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê´€ë¦¬ìì—ê²Œ ë¬¸ì˜í•´ì£¼ì„¸ìš”."
+          "¼­¹ö API Å°°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ü¸®ÀÚ¿¡°Ô ¹®ÀÇÇØÁÖ¼¼¿ä."
         );
         return;
       }
       try {
         const mergedDescription = customPrompt
-          ? `${description}\nì¶”ê°€ ìš”ì²­: ${customPrompt}`
+          ? `${description}\nÃß°¡ ¿äÃ»: ${customPrompt}`
           : description;
         const newImage = await regenerateCharacterImage(
           mergedDescription,
@@ -995,12 +995,12 @@ const App: React.FC<ImageAppProps> = ({
             char.id === characterId ? { ...char, image: newImage } : char
           )
         );
-        setPersonaError(`âœ… ${name} ì´ë¯¸ì§€ê°€ ì—…ë°ì´íŠ¸ë˜ì—ˆìŠµë‹ˆë‹¤.`);
+        setPersonaError(`? ${name} ÀÌ¹ÌÁö°¡ ¾÷µ¥ÀÌÆ®µÇ¾ú½À´Ï´Ù.`);
         setTimeout(() => saveDataToStorage(true), 100);
       } catch (e) {
-        console.error("[ê°œë°œììš©] í˜ë¥´ì†Œë‚˜ ì¬ìƒì„± ì˜¤ë¥˜:", e);
+        console.error("[°³¹ßÀÚ¿ë] Æä¸£¼Ò³ª Àç»ı¼º ¿À·ù:", e);
         const message =
-          e instanceof Error ? e.message : "í˜ë¥´ì†Œë‚˜ ì¬ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.";
+          e instanceof Error ? e.message : "Æä¸£¼Ò³ª Àç»ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù.";
         setPersonaError(message);
       }
     },
@@ -1009,15 +1009,15 @@ const App: React.FC<ImageAppProps> = ({
 
   const handleGenerateVideoSource = useCallback(async () => {
     if (!apiKey.trim()) {
-      setError("ì„œë²„ API í‚¤ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê´€ë¦¬ìì—ê²Œ ë¬¸ì˜í•´ì£¼ì„¸ìš”.");
+      setError("¼­¹ö API Å°°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ü¸®ÀÚ¿¡°Ô ¹®ÀÇÇØÁÖ¼¼¿ä.");
       return;
     }
     if (!videoSourceScript.trim()) {
-      setError("ì˜ìƒ ì†ŒìŠ¤ ëŒ€ë³¸ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.");
+      setError("¿µ»ó ¼Ò½º ´ëº»À» ÀÔ·ÂÇØÁÖ¼¼¿ä.");
       return;
     }
     if (characters.length === 0 && !referenceImage) {
-      setError("í˜ë¥´ì†Œë‚˜ë¥¼ ìƒì„±í•˜ê±°ë‚˜ ì°¸ì¡° ì´ë¯¸ì§€ë¥¼ ì—…ë¡œë“œí•´ì£¼ì„¸ìš”.");
+      setError("Æä¸£¼Ò³ª¸¦ »ı¼ºÇÏ°Å³ª ÂüÁ¶ ÀÌ¹ÌÁö¸¦ ¾÷·ÎµåÇØÁÖ¼¼¿ä.");
       return;
     }
 
@@ -1030,7 +1030,7 @@ const App: React.FC<ImageAppProps> = ({
     setIsLoadingVideoSource(true);
     setError(null);
     setVideoSource([]);
-    setLoadingProgress("ëŒ€ë³¸ ë¶„ì„ ì¤‘...");
+    setLoadingProgress("´ëº» ºĞ¼® Áß...");
 
     try {
       const generatedVideoSource = await generateStoryboard(
@@ -1048,11 +1048,11 @@ const App: React.FC<ImageAppProps> = ({
       setVideoSource(generatedVideoSource);
       setTimeout(() => saveDataToStorage(true), 100);
     } catch (e) {
-      console.error("[ê°œë°œììš©] ì˜ìƒ ì†ŒìŠ¤ ìƒì„± ì˜¤ë¥˜:", e);
+      console.error("[°³¹ßÀÚ¿ë] ¿µ»ó ¼Ò½º »ı¼º ¿À·ù:", e);
       const message =
         e instanceof Error
           ? e.message
-          : "ì˜ìƒ ì†ŒìŠ¤ ìƒì„± ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤.";
+          : "¿µ»ó ¼Ò½º »ı¼º Áß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù.";
       setError(message);
     } finally {
       setIsLoadingVideoSource(false);
@@ -1074,7 +1074,7 @@ const App: React.FC<ImageAppProps> = ({
   const handleRegenerateVideoSourceImage = useCallback(
     async (storyboardItemId: string, customPrompt?: string) => {
       if (!apiKey.trim()) {
-        setError("ì„œë²„ API í‚¤ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê´€ë¦¬ìì—ê²Œ ë¬¸ì˜í•´ì£¼ì„¸ìš”.");
+        setError("¼­¹ö API Å°°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ü¸®ÀÚ¿¡°Ô ¹®ÀÇÇØÁÖ¼¼¿ä.");
         return;
       }
 
@@ -1083,7 +1083,7 @@ const App: React.FC<ImageAppProps> = ({
 
       try {
         const mergedScene = customPrompt
-          ? `${target.sceneDescription}\nì¶”ê°€ ìš”ì²­: ${customPrompt}`
+          ? `${target.sceneDescription}\nÃß°¡ ¿äÃ»: ${customPrompt}`
           : target.sceneDescription;
         const newImage = await regenerateStoryboardImage(
           mergedScene,
@@ -1102,9 +1102,9 @@ const App: React.FC<ImageAppProps> = ({
         );
         setTimeout(() => saveDataToStorage(true), 100);
       } catch (e) {
-        console.error("[ê°œë°œììš©] ì˜ìƒ ì†ŒìŠ¤ ì¬ìƒì„± ì˜¤ë¥˜:", e);
+        console.error("[°³¹ßÀÚ¿ë] ¿µ»ó ¼Ò½º Àç»ı¼º ¿À·ù:", e);
         const message =
-          e instanceof Error ? e.message : "ì˜ìƒ ì†ŒìŠ¤ ì¬ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.";
+          e instanceof Error ? e.message : "¿µ»ó ¼Ò½º Àç»ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù.";
         setError(message);
       }
     },
@@ -1123,23 +1123,23 @@ const App: React.FC<ImageAppProps> = ({
   const handleGenerateCameraAngles = useCallback(async () => {
     if (!apiKey.trim()) {
       setCameraAngleError(
-        "ì„œë²„ API í‚¤ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê´€ë¦¬ìì—ê²Œ ë¬¸ì˜í•´ì£¼ì„¸ìš”."
+        "¼­¹ö API Å°°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ü¸®ÀÚ¿¡°Ô ¹®ÀÇÇØÁÖ¼¼¿ä."
       );
       return;
     }
     if (!cameraAngleSourceImage) {
-      setCameraAngleError("ì›ë³¸ ì´ë¯¸ì§€ë¥¼ ì—…ë¡œë“œí•´ì£¼ì„¸ìš”.");
+      setCameraAngleError("¿øº» ÀÌ¹ÌÁö¸¦ ¾÷·ÎµåÇØÁÖ¼¼¿ä.");
       return;
     }
     if (selectedCameraAngles.length === 0) {
-      setCameraAngleError("ìƒì„±í•  ì•µê¸€ì„ ìµœì†Œ 1ê°œ ì´ìƒ ì„ íƒí•´ì£¼ì„¸ìš”.");
+      setCameraAngleError("»ı¼ºÇÒ ¾Ş±ÛÀ» ÃÖ¼Ò 1°³ ÀÌ»ó ¼±ÅÃÇØÁÖ¼¼¿ä.");
       return;
     }
 
     setIsLoadingCameraAngles(true);
     setCameraAngleError(null);
     setCameraAngles([]);
-    setCameraAngleProgress("ì›ë³¸ ì´ë¯¸ì§€ ë¶„ì„ ì¤‘...");
+    setCameraAngleProgress("¿øº» ÀÌ¹ÌÁö ºĞ¼® Áß...");
 
     try {
       const generatedAngles = await generateCameraAngles(
@@ -1162,19 +1162,19 @@ const App: React.FC<ImageAppProps> = ({
 
       if (successCount === 0) {
         setCameraAngleError(
-          "ëª¨ë“  ì•µê¸€ ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤. ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ì£¼ì„¸ìš”."
+          "¸ğµç ¾Ş±Û »ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä."
         );
       } else if (successCount < totalSelected) {
         setCameraAngleError(
-          `âš ï¸ ${successCount}/${totalSelected}ê°œ ì•µê¸€ë§Œ ìƒì„±ë˜ì—ˆìŠµë‹ˆë‹¤. ì‹¤íŒ¨í•œ ì•µê¸€ì€ ë‹¤ì‹œ ì‹œë„í•´ì£¼ì„¸ìš”.`
+          `?? ${successCount}/${totalSelected}°³ ¾Ş±Û¸¸ »ı¼ºµÇ¾ú½À´Ï´Ù. ½ÇÆĞÇÑ ¾Ş±ÛÀº ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.`
         );
       }
     } catch (e) {
-      console.error("[ê°œë°œììš©] ì¹´ë©”ë¼ ì•µê¸€ ìƒì„± ì˜¤ë¥˜:", e);
+      console.error("[°³¹ßÀÚ¿ë] Ä«¸Ş¶ó ¾Ş±Û »ı¼º ¿À·ù:", e);
       const message =
         e instanceof Error
           ? e.message
-          : "ì¹´ë©”ë¼ ì•µê¸€ ìƒì„± ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤.";
+          : "Ä«¸Ş¶ó ¾Ş±Û »ı¼º Áß ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù.";
       setCameraAngleError(message);
     } finally {
       setIsLoadingCameraAngles(false);
@@ -1192,12 +1192,12 @@ const App: React.FC<ImageAppProps> = ({
     try {
       localStorage.removeItem("youtube_image_work_data");
     } catch (storageError) {
-      console.error("âŒ localStorage ì •ë¦¬ ì‹¤íŒ¨:", storageError);
+      console.error("? localStorage Á¤¸® ½ÇÆĞ:", storageError);
     }
     try {
       sessionStorage.removeItem("youtube_image_work_data");
     } catch (storageError) {
-      console.error("âŒ sessionStorage ì •ë¦¬ ì‹¤íŒ¨:", storageError);
+      console.error("? sessionStorage Á¤¸® ½ÇÆĞ:", storageError);
     }
 
     setCharacters([]);
@@ -1207,13 +1207,13 @@ const App: React.FC<ImageAppProps> = ({
     setPersonaReferenceImage(null);
     setReferenceImage(null);
     setImageStyle("realistic");
-    setPersonaStyle("ì‹¤ì‚¬ ê·¹ëŒ€í™”");
-    setCharacterStyle("ì‹¤ì‚¬ ê·¹ëŒ€í™”");
-    setBackgroundStyle("ëª¨ë˜");
+    setPersonaStyle("½Ç»ç ±Ø´ëÈ­");
+    setCharacterStyle("½Ç»ç ±Ø´ëÈ­");
+    setBackgroundStyle("¸ğ´ø");
     setCustomCharacterStyle("");
     setCustomBackgroundStyle("");
     setCustomStyle("");
-    setPhotoComposition("ì •ë©´");
+    setPhotoComposition("Á¤¸é");
     setCustomPrompt("");
     setAspectRatio("16:9");
     setImageCount(5);
@@ -1248,27 +1248,27 @@ const App: React.FC<ImageAppProps> = ({
     let cancelCount = 0;
     
     try {
-      // ê° ì´ë¯¸ì§€ë¥¼ ìˆœì°¨ì ìœ¼ë¡œ ë‹¤ìš´ë¡œë“œ
+      // °¢ ÀÌ¹ÌÁö¸¦ ¼øÂ÷ÀûÀ¸·Î ´Ù¿î·Îµå
       for (let index = 0; index < videoSource.length; index++) {
         const item = videoSource[index];
         const safeDescription = item.sceneDescription
-          .replace(/[^a-zA-Z0-9ã„±-ã…ã…-ã…£ê°€-í£]/g, "_")
+          .replace(/[^a-zA-Z0-9¤¡-¤¾¤¿-¤Ó°¡-ÆR]/g, "_")
           .substring(0, 30);
-        const fileName = `ì¥ë©´_${index + 1}_${safeDescription}.jpg`;
+        const fileName = `Àå¸é_${index + 1}_${safeDescription}.jpg`;
         
         try {
-          // Base64ë¥¼ Blobìœ¼ë¡œ ë³€í™˜
+          // Base64¸¦ BlobÀ¸·Î º¯È¯
           const base64Response = await fetch(`data:image/jpeg;base64,${item.image}`);
           const blob = await base64Response.blob();
           
-          // File System Access API ì§€ì› í™•ì¸
+          // File System Access API Áö¿ø È®ÀÎ
           if ('showSaveFilePicker' in window) {
             try {
               const handle = await (window as any).showSaveFilePicker({
                 suggestedName: fileName,
                 types: [
                   {
-                    description: 'ì´ë¯¸ì§€ íŒŒì¼',
+                    description: 'ÀÌ¹ÌÁö ÆÄÀÏ',
                     accept: {
                       'image/jpeg': ['.jpg', '.jpeg'],
                     },
@@ -1282,15 +1282,15 @@ const App: React.FC<ImageAppProps> = ({
               successCount++;
             } catch (err: any) {
               if (err.name === 'AbortError') {
-                // ì‚¬ìš©ìê°€ ì´ íŒŒì¼ ì €ì¥ì„ ì·¨ì†Œí•¨
+                // »ç¿ëÀÚ°¡ ÀÌ ÆÄÀÏ ÀúÀåÀ» Ãë¼ÒÇÔ
                 cancelCount++;
-                console.log(`[${index + 1}/${videoSource.length}] ì‚¬ìš©ìê°€ ì €ì¥ì„ ì·¨ì†Œí–ˆìŠµë‹ˆë‹¤.`);
+                console.log(`[${index + 1}/${videoSource.length}] »ç¿ëÀÚ°¡ ÀúÀåÀ» Ãë¼ÒÇß½À´Ï´Ù.`);
               } else {
                 throw err;
               }
             }
           } else {
-            // í´ë°±: ê¸°ì¡´ ë‹¤ìš´ë¡œë“œ ë°©ì‹
+            // Æú¹é: ±âÁ¸ ´Ù¿î·Îµå ¹æ½Ä
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
@@ -1300,35 +1300,35 @@ const App: React.FC<ImageAppProps> = ({
             URL.revokeObjectURL(link.href);
             successCount++;
             
-            // ìë™ ë‹¤ìš´ë¡œë“œ ì‹œ ì•½ê°„ì˜ ë”œë ˆì´
+            // ÀÚµ¿ ´Ù¿î·Îµå ½Ã ¾à°£ÀÇ µô·¹ÀÌ
             await new Promise(resolve => setTimeout(resolve, 300));
           }
         } catch (err) {
-          console.error(`[ê°œë°œììš©] ì´ë¯¸ì§€ ${index + 1} ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:`, err);
+          console.error(`[°³¹ßÀÚ¿ë] ÀÌ¹ÌÁö ${index + 1} ´Ù¿î·Îµå ¿À·ù:`, err);
           throw err;
         }
       }
       
-      // ë‹¤ìš´ë¡œë“œ ì™„ë£Œ ë©”ì‹œì§€
+      // ´Ù¿î·Îµå ¿Ï·á ¸Ş½ÃÁö
       if (successCount > 0) {
-        setError(`âœ… ${successCount}ê°œì˜ ì´ë¯¸ì§€ê°€ ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤!` + 
-                (cancelCount > 0 ? ` (${cancelCount}ê°œ ì·¨ì†Œë¨)` : ''));
+        setError(`? ${successCount}°³ÀÇ ÀÌ¹ÌÁö°¡ ÀúÀåµÇ¾ú½À´Ï´Ù!` + 
+                (cancelCount > 0 ? ` (${cancelCount}°³ Ãë¼ÒµÊ)` : ''));
       } else if (cancelCount > 0) {
-        setError(`ëª¨ë“  ë‹¤ìš´ë¡œë“œê°€ ì·¨ì†Œë˜ì—ˆìŠµë‹ˆë‹¤.`);
+        setError(`¸ğµç ´Ù¿î·Îµå°¡ Ãë¼ÒµÇ¾ú½À´Ï´Ù.`);
       }
     } catch (e) {
-      console.error("[ê°œë°œììš©] ì´ë¯¸ì§€ ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:", e);
+      console.error("[°³¹ßÀÚ¿ë] ÀÌ¹ÌÁö ´Ù¿î·Îµå ¿À·ù:", e);
       
-      // ì‚¬ìš©ììš© ì˜¤ë¥˜ ë©”ì‹œì§€
-      let userMessage = "íŒŒì¼ ë‹¤ìš´ë¡œë“œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.";
+      // »ç¿ëÀÚ¿ë ¿À·ù ¸Ş½ÃÁö
+      let userMessage = "ÆÄÀÏ ´Ù¿î·Îµå¿¡ ½ÇÆĞÇß½À´Ï´Ù. ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.";
       
       if (e instanceof Error) {
-        console.error(`[ê°œë°œììš©] ì˜¤ë¥˜ ìƒì„¸: ${e.name} - ${e.message}`);
+        console.error(`[°³¹ßÀÚ¿ë] ¿À·ù »ó¼¼: ${e.name} - ${e.message}`);
         
         if (e.name === 'NotAllowedError') {
-          userMessage = "íŒŒì¼ ì €ì¥ ê¶Œí•œì´ ê±°ë¶€ë˜ì—ˆìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì € ì„¤ì •ì„ í™•ì¸í•´ ì£¼ì„¸ìš”.";
+          userMessage = "ÆÄÀÏ ÀúÀå ±ÇÇÑÀÌ °ÅºÎµÇ¾ú½À´Ï´Ù. ºê¶ó¿ìÀú ¼³Á¤À» È®ÀÎÇØ ÁÖ¼¼¿ä.";
         } else if (e.name === 'SecurityError') {
-          userMessage = "ë³´ì•ˆ ë¬¸ì œë¡œ íŒŒì¼ì„ ì €ì¥í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì €ë¥¼ ì—…ë°ì´íŠ¸í•˜ê±°ë‚˜ ë‹¤ë¥¸ ë¸Œë¼ìš°ì €ë¥¼ ì‚¬ìš©í•´ ì£¼ì„¸ìš”.";
+          userMessage = "º¸¾È ¹®Á¦·Î ÆÄÀÏÀ» ÀúÀåÇÒ ¼ö ¾ø½À´Ï´Ù. ºê¶ó¿ìÀú¸¦ ¾÷µ¥ÀÌÆ®ÇÏ°Å³ª ´Ù¸¥ ºê¶ó¿ìÀú¸¦ »ç¿ëÇØ ÁÖ¼¼¿ä.";
         }
       }
       
@@ -1338,13 +1338,13 @@ const App: React.FC<ImageAppProps> = ({
     }
   }, [videoSource]);
 
-  // ë¼ìš°íŒ… ì²˜ë¦¬
+  // ¶ó¿ìÆÃ Ã³¸®
   if (currentView === "user-guide") {
     return (
       <>
         <MetaTags
-          title="ìœ íŠœë¸Œ ì´ë¯¸ì§€ ìƒì„±ê¸° ì‚¬ìš©ë²• ê°€ì´ë“œ - AIë¡œ ì½˜í…ì¸  ì œì‘í•˜ê¸°"
-          description="AIë¥¼ í™œìš©í•˜ì—¬ ìœ íŠœë¸Œ í˜ë¥´ì†Œë‚˜ì™€ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ìƒì„±í•˜ëŠ” ë°©ë²•ì„ ìƒì„¸íˆ ì•Œë ¤ë“œë¦½ë‹ˆë‹¤. ë‹¨ê³„ë³„ ê°€ì´ë“œë¡œ ì‰½ê²Œ ë”°ë¼í•˜ì„¸ìš”."
+          title="À¯Æ©ºê ÀÌ¹ÌÁö »ı¼º±â »ç¿ë¹ı °¡ÀÌµå - AI·Î ÄÜÅÙÃ÷ Á¦ÀÛÇÏ±â"
+          description="AI¸¦ È°¿ëÇÏ¿© À¯Æ©ºê Æä¸£¼Ò³ª¿Í ¿µ»ó ¼Ò½º¸¦ »ı¼ºÇÏ´Â ¹æ¹ıÀ» »ó¼¼È÷ ¾Ë·Áµå¸³´Ï´Ù. ´Ü°èº° °¡ÀÌµå·Î ½±°Ô µû¶óÇÏ¼¼¿ä."
           url={`${normalizedBasePath || "/image"}/user-guide`}
           image="/user-guide-preview.png"
           type="article"
@@ -1360,8 +1360,8 @@ const App: React.FC<ImageAppProps> = ({
     <>
       <AdBlockDetector />
       <MetaTags
-        title="ìœ íŠœë¸Œ ë¡±í¼ ì´ë¯¸ì§€ ìƒì„±ê¸° - AIë¡œ ìºë¦­í„°ì™€ ìŠ¤í† ë¦¬ë³´ë“œ ë§Œë“¤ê¸°"
-        description="Google Gemini AIë¥¼ í™œìš©í•´ ìœ íŠœë¸Œ ì½˜í…ì¸ ìš© í˜ë¥´ì†Œë‚˜ì™€ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ì‰½ê³  ë¹ ë¥´ê²Œ ìƒì„±í•˜ì„¸ìš”. ë‹¤ì–‘í•œ ë¹„ìœ¨(9:16, 16:9, 1:1) ì§€ì›."
+        title="À¯Æ©ºê ·ÕÆû ÀÌ¹ÌÁö »ı¼º±â - AI·Î Ä³¸¯ÅÍ¿Í ½ºÅä¸®º¸µå ¸¸µé±â"
+        description="Google Gemini AI¸¦ È°¿ëÇØ À¯Æ©ºê ÄÜÅÙÃ÷¿ë Æä¸£¼Ò³ª¿Í ¿µ»ó ¼Ò½º¸¦ ½±°í ºü¸£°Ô »ı¼ºÇÏ¼¼¿ä. ´Ù¾çÇÑ ºñÀ²(9:16, 16:9, 1:1) Áö¿ø."
         url={normalizedBasePath || "/image"}
         image="/og-image.png"
         type="website"
@@ -1374,33 +1374,33 @@ const App: React.FC<ImageAppProps> = ({
       >
         <div className="max-w-4xl mx-auto">
           <header className="text-center mb-8">
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-600">
-              ìœ íŠœë¸Œ ë¡±í¼ ì´ë¯¸ì§€ ìƒì„±ê¸°
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
+              À¯Æ©ºê ·ÕÆû ÀÌ¹ÌÁö »ı¼º±â
             </h1>
             <p className="mt-2 text-lg text-gray-400">
-              ìŠ¤í¬ë¦½íŠ¸ë¥¼ ì…ë ¥í•˜ê³  ì¼ê´€ëœ ìºë¦­í„°ì™€ ì˜ìƒ ì†ŒìŠ¤ ì´ë¯¸ì§€ë¥¼ ìƒì„±í•˜ì„¸ìš”!
+              ½ºÅ©¸³Æ®¸¦ ÀÔ·ÂÇÏ°í ÀÏ°üµÈ Ä³¸¯ÅÍ¿Í ¿µ»ó ¼Ò½º ÀÌ¹ÌÁö¸¦ »ı¼ºÇÏ¼¼¿ä!
             </p>
 
-            {/* ë°ì´í„° ë³µì› ì•ˆë‚´ (ë³µì›ëœ ë°ì´í„°ê°€ ìˆì„ ë•Œë§Œ í‘œì‹œ) */}
+            {/* µ¥ÀÌÅÍ º¹¿ø ¾È³» (º¹¿øµÈ µ¥ÀÌÅÍ°¡ ÀÖÀ» ¶§¸¸ Ç¥½Ã) */}
             {(characters.length > 0 || videoSource.length > 0 || cameraAngles.length > 0) && (
               <div className="mt-4 bg-green-900/20 border border-green-500/50 rounded-lg p-3 max-w-2xl mx-auto">
                 <p className="text-green-300 text-sm flex items-center justify-center">
-                  <span className="mr-2">ğŸ’¾</span>
-                  ì´ì „ ì‘ì—…ì´ ë³µì›ë˜ì—ˆìŠµë‹ˆë‹¤:
-                  {characters.length > 0 && ` í˜ë¥´ì†Œë‚˜ ${characters.length}ê°œ`}
-                  {videoSource.length > 0 && ` | ì˜ìƒì†ŒìŠ¤ ${videoSource.length}ê°œ`}
-                  {cameraAngles.length > 0 && ` | ì¹´ë©”ë¼ì•µê¸€ ${cameraAngles.length}ê°œ`}
+                  <span className="mr-2">??</span>
+                  ÀÌÀü ÀÛ¾÷ÀÌ º¹¿øµÇ¾ú½À´Ï´Ù:
+                  {characters.length > 0 && ` Æä¸£¼Ò³ª ${characters.length}°³`}
+                  {videoSource.length > 0 && ` | ¿µ»ó¼Ò½º ${videoSource.length}°³`}
+                  {cameraAngles.length > 0 && ` | Ä«¸Ş¶ó¾Ş±Û ${cameraAngles.length}°³`}
                 </p>
               </div>
             )}
 
-            {/* ë„¤ë¹„ê²Œì´ì…˜ ë§í¬ */}
+            {/* ³×ºñ°ÔÀÌ¼Ç ¸µÅ© */}
             <div className="flex justify-center mt-4 space-x-4">
               <button
                 onClick={() => navigateToView("user-guide")}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition-colors"
               >
-                ğŸ“– ì‚¬ìš©ë²• ê°€ì´ë“œ
+                ?? »ç¿ë¹ı °¡ÀÌµå
               </button>
             </div>
           </header>
@@ -1408,28 +1408,28 @@ const App: React.FC<ImageAppProps> = ({
           <main className="space-y-6">
             <AdBanner />
 
-            <section className="bg-gray-800 p-6 rounded-xl shadow-2xl border-2 border-purple-500">
-              <h2 className="text-2xl font-bold mb-4 text-purple-400 flex items-center">
-                <span className="mr-2">1ï¸âƒ£</span>
-                í˜ë¥´ì†Œë‚˜ ìƒì„±
+            <section className="bg-gray-800 p-6 rounded-xl shadow-2xl border-2 border-blue-500">
+              <h2 className="text-2xl font-bold mb-4 text-blue-400 flex items-center">
+                <span className="mr-2">1??</span>
+                Æä¸£¼Ò³ª »ı¼º
               </h2>
               <div className="mb-4">
                 <p className="text-gray-400 text-sm mb-3">
-                  êµ¬ì²´ì ì¸ ì¸ë¬¼ ë¬˜ì‚¬ë¥¼ ì…ë ¥í•˜ê±°ë‚˜, ëŒ€ë³¸ì„ ë„£ìœ¼ë©´ ë“±ì¥ì¸ë¬¼ë“¤ì„
-                  ìë™ìœ¼ë¡œ ë¶„ì„í•˜ì—¬ ìƒì„±í•©ë‹ˆë‹¤.
+                  ±¸Ã¼ÀûÀÎ ÀÎ¹° ¹¦»ç¸¦ ÀÔ·ÂÇÏ°Å³ª, ´ëº»À» ³ÖÀ¸¸é µîÀåÀÎ¹°µéÀ»
+                  ÀÚµ¿À¸·Î ºĞ¼®ÇÏ¿© »ı¼ºÇÕ´Ï´Ù.
                 </p>
-                <div className="bg-purple-900/20 border border-purple-500/50 rounded-lg p-4 mb-4">
-                  <p className="text-purple-200 text-sm mb-2">
-                    <strong>ì…ë ¥ ì˜ˆì‹œ:</strong>
+                <div className="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4 mb-4">
+                  <p className="text-blue-200 text-sm mb-2">
+                    <strong>ÀÔ·Â ¿¹½Ã:</strong>
                   </p>
-                  <ul className="text-purple-300 text-sm space-y-1 ml-4">
+                  <ul className="text-blue-300 text-sm space-y-1 ml-4">
                     <li>
-                      â€¢ <strong>ì¸ë¬¼ ë¬˜ì‚¬:</strong> "20ëŒ€ ì¤‘ë°˜ ì—¬ì„±, ê¸´ í‘ë°œ,
-                      ë°ì€ ë¯¸ì†Œ, ìºì£¼ì–¼í•œ ì˜·ì°¨ë¦¼"
+                      ? <strong>ÀÎ¹° ¹¦»ç:</strong> "20´ë Áß¹İ ¿©¼º, ±ä Èæ¹ß,
+                      ¹àÀº ¹Ì¼Ò, Ä³ÁÖ¾óÇÑ ¿ÊÂ÷¸²"
                     </li>
                     <li>
-                      â€¢ <strong>ëŒ€ë³¸ ì…ë ¥:</strong> ì „ì²´ ìŠ¤í† ë¦¬ ëŒ€ë³¸ì„ ë„£ìœ¼ë©´
-                      ë“±ì¥ì¸ë¬¼ ìë™ ì¶”ì¶œ
+                      ? <strong>´ëº» ÀÔ·Â:</strong> ÀüÃ¼ ½ºÅä¸® ´ëº»À» ³ÖÀ¸¸é
+                      µîÀåÀÎ¹° ÀÚµ¿ ÃßÃâ
                     </li>
                   </ul>
                 </div>
@@ -1437,51 +1437,51 @@ const App: React.FC<ImageAppProps> = ({
               <textarea
                 value={personaInput}
                 onChange={(e) => setPersonaInput(e.target.value)}
-                placeholder="ì¸ë¬¼ ë¬˜ì‚¬ë‚˜ ëŒ€ë³¸ì„ ì…ë ¥í•˜ì„¸ìš”..."
-                className="w-full h-48 p-4 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200 resize-y mb-6"
+                placeholder="ÀÎ¹° ¹¦»ç³ª ´ëº»À» ÀÔ·ÂÇÏ¼¼¿ä..."
+                className="w-full h-48 p-4 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-y mb-6"
               />
 
-              {/* ì´ë¯¸ì§€ ìŠ¤íƒ€ì¼ ì„ íƒ */}
-              <div className="mb-6 bg-purple-900/20 border border-purple-500/50 rounded-lg p-6">
-                <h3 className="text-purple-300 font-medium mb-6 flex items-center">
-                  <span className="mr-2">ğŸ¨</span>
-                  ì´ë¯¸ì§€ ìŠ¤íƒ€ì¼ ì„ íƒ
+              {/* ÀÌ¹ÌÁö ½ºÅ¸ÀÏ ¼±ÅÃ */}
+              <div className="mb-6 bg-blue-900/20 border border-blue-500/50 rounded-lg p-6">
+                <h3 className="text-blue-300 font-medium mb-6 flex items-center">
+                  <span className="mr-2">??</span>
+                  ÀÌ¹ÌÁö ½ºÅ¸ÀÏ ¼±ÅÃ
                 </h3>
 
-                {/* ì¸ë¬¼ ìŠ¤íƒ€ì¼ */}
+                {/* ÀÎ¹° ½ºÅ¸ÀÏ */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-purple-200 font-medium flex items-center text-sm">
-                      <span className="mr-2">ğŸ‘¤</span>
-                      ì¸ë¬¼ ìŠ¤íƒ€ì¼
+                    <h4 className="text-blue-200 font-medium flex items-center text-sm">
+                      <span className="mr-2">??</span>
+                      ÀÎ¹° ½ºÅ¸ÀÏ
                     </h4>
                     <button
                       onClick={() => setCharacterStyle("custom")}
                       className={`py-1.5 px-4 rounded-lg font-medium text-xs transition-all duration-200 ${
                         characterStyle === "custom"
-                          ? "bg-purple-600 text-white shadow-lg scale-105"
+                          ? "bg-blue-600 text-white shadow-lg scale-105"
                           : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                       }`}
                     >
-                      ì§ì ‘ ì…ë ¥
+                      Á÷Á¢ ÀÔ·Â
                     </button>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {(
                       [
-                        "ì‹¤ì‚¬ ê·¹ëŒ€í™”",
-                        "ì• ë‹ˆë©”ì´ì…˜",
-                        "ë™ë¬¼",
-                        "ì›¹íˆ°",
+                        "½Ç»ç ±Ø´ëÈ­",
+                        "¾Ö´Ï¸ŞÀÌ¼Ç",
+                        "µ¿¹°",
+                        "À¥Å÷",
                       ] as CharacterStyle[]
                     ).map((style) => {
                       const styleDescriptions: Record<CharacterStyle, string> =
                         {
-                          "ì‹¤ì‚¬ ê·¹ëŒ€í™”":
-                            "ğŸ“¸ ì´ˆí˜„ì‹¤ì ì´ê³  ì‚¬ì§„ ê°™ì€ í€„ë¦¬í‹°ì˜ ì‹¤ì‚¬ ì¸ë¬¼",
-                          ì• ë‹ˆë©”ì´ì…˜: "ğŸ¨ ë°ê³  í™”ë ¤í•œ ì• ë‹ˆë©”ì´ì…˜ ìŠ¤íƒ€ì¼ ìºë¦­í„°",
-                          ë™ë¬¼: "ğŸ¾ ê·€ì—¬ìš´ ë™ë¬¼ ìºë¦­í„°ë¡œ ë³€í™˜",
-                          ì›¹íˆ°: "ğŸ“– ê¹¨ë—í•œ ì„ ê³¼ í‘œí˜„ë ¥ í’ë¶€í•œ í•œêµ­ ì›¹íˆ° ìŠ¤íƒ€ì¼",
+                          "½Ç»ç ±Ø´ëÈ­":
+                            "?? ÃÊÇö½ÇÀûÀÌ°í »çÁø °°Àº Ä÷¸®Æ¼ÀÇ ½Ç»ç ÀÎ¹°",
+                          ¾Ö´Ï¸ŞÀÌ¼Ç: "?? ¹à°í È­·ÁÇÑ ¾Ö´Ï¸ŞÀÌ¼Ç ½ºÅ¸ÀÏ Ä³¸¯ÅÍ",
+                          µ¿¹°: "?? ±Í¿©¿î µ¿¹° Ä³¸¯ÅÍ·Î º¯È¯",
+                          À¥Å÷: "?? ±ú²ıÇÑ ¼±°ú Ç¥Çö·Â Ç³ºÎÇÑ ÇÑ±¹ À¥Å÷ ½ºÅ¸ÀÏ",
                           custom: "",
                         };
 
@@ -1495,7 +1495,7 @@ const App: React.FC<ImageAppProps> = ({
                             onMouseLeave={() => setHoveredStyle(null)}
                             className={`w-full py-2 px-3 rounded-lg font-medium text-sm transition-all duration-200 ${
                               characterStyle === style
-                                ? "bg-purple-600 text-white shadow-lg scale-105"
+                                ? "bg-blue-600 text-white shadow-lg scale-105"
                                 : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:scale-105"
                             }`}
                           >
@@ -1503,14 +1503,14 @@ const App: React.FC<ImageAppProps> = ({
                           </button>
                           {hoveredStyle === `character-${style}` && (
                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
-                              <div className="bg-gray-900 rounded-lg shadow-2xl border border-purple-500/50 overflow-hidden" style={{ minWidth: '500px' }}>
+                              <div className="bg-gray-900 rounded-lg shadow-2xl border border-blue-500/50 overflow-hidden" style={{ minWidth: '500px' }}>
                                 <div className="p-3">
-                                  <div className="text-purple-200 font-medium text-sm mb-2 text-center">
-                                    {style} ë¯¸ë¦¬ë³´ê¸°
+                                  <div className="text-blue-200 font-medium text-sm mb-2 text-center">
+                                    {style} ¹Ì¸®º¸±â
                                   </div>
                                   <img
                                     src={`/${style}.png`}
-                                    alt={`${style} ìŠ¤íƒ€ì¼ ë¯¸ë¦¬ë³´ê¸°`}
+                                    alt={`${style} ½ºÅ¸ÀÏ ¹Ì¸®º¸±â`}
                                     className="w-full h-auto object-contain rounded"
                                     style={{ maxHeight: '400px', minHeight: '300px' }}
                                     onError={(e) => {
@@ -1522,7 +1522,7 @@ const App: React.FC<ImageAppProps> = ({
                                         const fallback =
                                           document.createElement("div");
                                         fallback.className =
-                                          "w-full bg-gray-800 rounded flex items-center justify-center text-purple-300 text-sm text-center p-4";
+                                          "w-full bg-gray-800 rounded flex items-center justify-center text-blue-300 text-sm text-center p-4";
                                         fallback.style.minHeight = "300px";
                                         fallback.textContent =
                                           styleDescriptions[style];
@@ -1546,69 +1546,69 @@ const App: React.FC<ImageAppProps> = ({
                       type="text"
                       value={customCharacterStyle}
                       onChange={(e) => setCustomCharacterStyle(e.target.value)}
-                      placeholder="ì›í•˜ëŠ” ì¸ë¬¼ ìŠ¤íƒ€ì¼ì„ ì…ë ¥í•˜ì„¸ìš” (ì˜ˆ: ë¥´ë„¤ìƒìŠ¤, ë¹…í† ë¦¬ì•„ ì‹œëŒ€ ë“±)"
-                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors mt-3"
+                      placeholder="¿øÇÏ´Â ÀÎ¹° ½ºÅ¸ÀÏÀ» ÀÔ·ÂÇÏ¼¼¿ä (¿¹: ¸£³×»ó½º, ºòÅä¸®¾Æ ½Ã´ë µî)"
+                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors mt-3"
                     />
                   )}
                 </div>
 
-                {/* ë°°ê²½/ë¶„ìœ„ê¸° ìŠ¤íƒ€ì¼ */}
+                {/* ¹è°æ/ºĞÀ§±â ½ºÅ¸ÀÏ */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-purple-200 font-medium flex items-center text-sm">
-                      <span className="mr-2">ğŸŒ†</span>
-                      ë°°ê²½/ë¶„ìœ„ê¸° ìŠ¤íƒ€ì¼
+                    <h4 className="text-blue-200 font-medium flex items-center text-sm">
+                      <span className="mr-2">??</span>
+                      ¹è°æ/ºĞÀ§±â ½ºÅ¸ÀÏ
                     </h4>
                     <button
                       onClick={() => setBackgroundStyle("custom")}
                       className={`py-1.5 px-4 rounded-lg font-medium text-xs transition-all duration-200 ${
                         backgroundStyle === "custom"
-                          ? "bg-purple-600 text-white shadow-lg scale-105"
+                          ? "bg-blue-600 text-white shadow-lg scale-105"
                           : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                       }`}
                     >
-                      ì§ì ‘ ì…ë ¥
+                      Á÷Á¢ ÀÔ·Â
                     </button>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
                     {(
                       [
-                        "ê°ì„± ë©œë¡œ",
-                        "ì„œë¶€ê·¹",
-                        "ê³µí¬ ìŠ¤ë¦´ëŸ¬",
-                        "ì‚¬ì´ë²„í‘í¬",
-                        "íŒíƒ€ì§€",
-                        "ë¯¸ë‹ˆë©€",
-                        "ë¹ˆí‹°ì§€",
-                        "ëª¨ë˜",
-                        "1980ë…„ëŒ€",
-                        "2000ë…„ëŒ€",
-                        "ë¨¹ë°©",
-                        "ê·€ì—¬ì›€",
+                        "°¨¼º ¸á·Î",
+                        "¼­ºÎ±Ø",
+                        "°øÆ÷ ½º¸±·¯",
+                        "»çÀÌ¹öÆãÅ©",
+                        "ÆÇÅ¸Áö",
+                        "¹Ì´Ï¸Ö",
+                        "ºóÆ¼Áö",
+                        "¸ğ´ø",
+                        "1980³â´ë",
+                        "2000³â´ë",
+                        "¸Ô¹æ",
+                        "±Í¿©¿ò",
                         "AI",
-                        "ê´´ì´í•¨",
-                        "ì°½ì˜ì ì¸",
-                        "ì¡°ì„ ì‹œëŒ€",
+                        "±«ÀÌÇÔ",
+                        "Ã¢ÀÇÀûÀÎ",
+                        "Á¶¼±½Ã´ë",
                       ] as BackgroundStyle[]
                     ).map((style) => {
                       const styleDescriptions: Record<BackgroundStyle, string> =
                         {
-                          "ê°ì„± ë©œë¡œ": "ğŸŒ¸ ë¡œë§¨í‹±í•˜ê³  ê°ì„±ì ì¸ ë”°ëœ»í•œ ë¶„ìœ„ê¸°",
-                          ì„œë¶€ê·¹: "ğŸ¤  ê±°ì¹œ ì‚¬ë§‰ê³¼ ì¹´ìš°ë³´ì´ ë°°ê²½",
-                          "ê³µí¬ ìŠ¤ë¦´ëŸ¬": "ğŸ­ ë¯¸ìŠ¤í„°ë¦¬í•˜ê³  ê¸´ì¥ê° ìˆëŠ” ë¶„ìœ„ê¸°",
-                          ì‚¬ì´ë²„í‘í¬: "ğŸŒƒ ë„¤ì˜¨ì‚¬ì¸ ê°€ë“í•œ ë¯¸ë˜ ë„ì‹œ",
-                          íŒíƒ€ì§€: "ğŸ§™â€â™‚ï¸ ë§ˆë²•ì ì´ê³  ì‹ ë¹„ë¡œìš´ ì¤‘ì„¸ ë°°ê²½",
-                          ë¯¸ë‹ˆë©€: "âšª ê¹”ë”í•˜ê³  ë‹¨ìˆœí•œ ì¤‘ì„±í†¤ ë°°ê²½",
-                          ë¹ˆí‹°ì§€: "ğŸ“· í´ë˜ì‹í•˜ê³  í–¥ìˆ˜ë¥¼ ìì•„ë‚´ëŠ” ë°°ê²½",
-                          ëª¨ë˜: "ğŸ¢ í˜„ëŒ€ì ì´ê³  ì„¸ë ¨ëœ ë„ì‹œ ë°°ê²½",
-                          "1980ë…„ëŒ€": "ğŸ’« 80ë…„ëŒ€ ë ˆíŠ¸ë¡œ íŒ¨ì…˜ê³¼ ë¶„ìœ„ê¸°",
-                          "2000ë…„ëŒ€": "ğŸ“± 2000ë…„ëŒ€ ì´ˆë°˜ ê°ì„±ê³¼ ìŠ¤íƒ€ì¼",
-                          ë¨¹ë°©: "ğŸ½ï¸ ë§›ìˆëŠ” ìŒì‹ì´ ê°€ë“í•œ ë¨¹ë°© ë¶„ìœ„ê¸°",
-                          ê·€ì—¬ì›€: "ğŸ€ ê·€ì—½ê³  ì‚¬ë‘ìŠ¤ëŸ¬ìš´ íŒŒìŠ¤í…” ê°ì„±",
-                          AI: "ğŸ¤– ë¯¸ë˜ì§€í–¥ì ì¸ í•˜ì´í…Œí¬ AI ë¶„ìœ„ê¸°",
-                          ê´´ì´í•¨: "ğŸ‘ï¸ ë…íŠ¹í•˜ê³  ì´ˆí˜„ì‹¤ì ì¸ ê¸°ë¬˜í•œ ë¶„ìœ„ê¸°",
-                          ì°½ì˜ì ì¸: "ğŸ¨ ìƒìƒë ¥ ë„˜ì¹˜ëŠ” ë…ì°½ì ì¸ ì˜ˆìˆ  ë¶„ìœ„ê¸°",
-                          ì¡°ì„ ì‹œëŒ€: "ğŸ¯ í•œì˜¥ê³¼ ì „í†µ ê°€ì˜¥, ë”°ëœ»í•˜ê³  ê°ì„±ì ì¸ ì¡°ì„  ë¶„ìœ„ê¸°",
+                          "°¨¼º ¸á·Î": "?? ·Î¸ÇÆ½ÇÏ°í °¨¼ºÀûÀÎ µû¶æÇÑ ºĞÀ§±â",
+                          ¼­ºÎ±Ø: "?? °ÅÄ£ »ç¸·°ú Ä«¿ìº¸ÀÌ ¹è°æ",
+                          "°øÆ÷ ½º¸±·¯": "?? ¹Ì½ºÅÍ¸®ÇÏ°í ±äÀå°¨ ÀÖ´Â ºĞÀ§±â",
+                          »çÀÌ¹öÆãÅ©: "?? ³×¿Â»çÀÎ °¡µæÇÑ ¹Ì·¡ µµ½Ã",
+                          ÆÇÅ¸Áö: "???¡Î? ¸¶¹ıÀûÀÌ°í ½Åºñ·Î¿î Áß¼¼ ¹è°æ",
+                          ¹Ì´Ï¸Ö: "? ±ò²ûÇÏ°í ´Ü¼øÇÑ Áß¼ºÅæ ¹è°æ",
+                          ºóÆ¼Áö: "?? Å¬·¡½ÄÇÏ°í Çâ¼ö¸¦ ÀÚ¾Æ³»´Â ¹è°æ",
+                          ¸ğ´ø: "?? Çö´ëÀûÀÌ°í ¼¼·ÃµÈ µµ½Ã ¹è°æ",
+                          "1980³â´ë": "?? 80³â´ë ·¹Æ®·Î ÆĞ¼Ç°ú ºĞÀ§±â",
+                          "2000³â´ë": "?? 2000³â´ë ÃÊ¹İ °¨¼º°ú ½ºÅ¸ÀÏ",
+                          ¸Ô¹æ: "??? ¸ÀÀÖ´Â À½½ÄÀÌ °¡µæÇÑ ¸Ô¹æ ºĞÀ§±â",
+                          ±Í¿©¿ò: "?? ±Í¿±°í »ç¶û½º·¯¿î ÆÄ½ºÅÚ °¨¼º",
+                          AI: "?? ¹Ì·¡ÁöÇâÀûÀÎ ÇÏÀÌÅ×Å© AI ºĞÀ§±â",
+                          ±«ÀÌÇÔ: "??? µ¶Æ¯ÇÏ°í ÃÊÇö½ÇÀûÀÎ ±â¹¦ÇÑ ºĞÀ§±â",
+                          Ã¢ÀÇÀûÀÎ: "?? »ó»ó·Â ³ÑÄ¡´Â µ¶Ã¢ÀûÀÎ ¿¹¼ú ºĞÀ§±â",
+                          Á¶¼±½Ã´ë: "?? ÇÑ¿Á°ú ÀüÅë °¡¿Á, µû¶æÇÏ°í °¨¼ºÀûÀÎ Á¶¼± ºĞÀ§±â",
                           custom: "",
                         };
 
@@ -1622,7 +1622,7 @@ const App: React.FC<ImageAppProps> = ({
                             onMouseLeave={() => setHoveredStyle(null)}
                             className={`w-full py-2 px-3 rounded-lg font-medium text-sm transition-all duration-200 ${
                               backgroundStyle === style
-                                ? "bg-purple-600 text-white shadow-lg scale-105"
+                                ? "bg-blue-600 text-white shadow-lg scale-105"
                                 : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:scale-105"
                             }`}
                           >
@@ -1630,16 +1630,16 @@ const App: React.FC<ImageAppProps> = ({
                           </button>
                           {hoveredStyle === `background-${style}` && (
                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
-                              <div className="bg-gray-900 rounded-lg shadow-2xl border border-purple-500/50 overflow-hidden" style={{ minWidth: '500px' }}>
+                              <div className="bg-gray-900 rounded-lg shadow-2xl border border-blue-500/50 overflow-hidden" style={{ minWidth: '500px' }}>
                                 <div className="p-3">
-                                  <div className="text-purple-200 font-medium text-sm mb-2 text-center">
-                                    {style} ë¯¸ë¦¬ë³´ê¸°
+                                  <div className="text-blue-200 font-medium text-sm mb-2 text-center">
+                                    {style} ¹Ì¸®º¸±â
                                   </div>
                                   <img
                                     src={`/${
                                       style === "AI" ? "ai" : style
                                     }.png`}
-                                    alt={`${style} ìŠ¤íƒ€ì¼ ë¯¸ë¦¬ë³´ê¸°`}
+                                    alt={`${style} ½ºÅ¸ÀÏ ¹Ì¸®º¸±â`}
                                     className="w-full h-auto object-contain rounded"
                                     style={{ maxHeight: '400px', minHeight: '300px' }}
                                     onError={(e) => {
@@ -1651,7 +1651,7 @@ const App: React.FC<ImageAppProps> = ({
                                         const fallback =
                                           document.createElement("div");
                                         fallback.className =
-                                          "w-full bg-gray-800 rounded flex items-center justify-center text-purple-300 text-sm text-center p-4";
+                                          "w-full bg-gray-800 rounded flex items-center justify-center text-blue-300 text-sm text-center p-4";
                                         fallback.style.minHeight = "300px";
                                         fallback.textContent =
                                           styleDescriptions[style];
@@ -1675,89 +1675,89 @@ const App: React.FC<ImageAppProps> = ({
                       type="text"
                       value={customBackgroundStyle}
                       onChange={(e) => setCustomBackgroundStyle(e.target.value)}
-                      placeholder="ì›í•˜ëŠ” ë°°ê²½/ë¶„ìœ„ê¸°ë¥¼ ì…ë ¥í•˜ì„¸ìš” (ì˜ˆ: ìš°ì£¼ ì •ê±°ì¥, ì—´ëŒ€ í•´ë³€ ë“±)"
-                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors mt-3"
+                      placeholder="¿øÇÏ´Â ¹è°æ/ºĞÀ§±â¸¦ ÀÔ·ÂÇÏ¼¼¿ä (¿¹: ¿ìÁÖ Á¤°ÅÀå, ¿­´ë ÇØº¯ µî)"
+                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors mt-3"
                     />
                   )}
                 </div>
               </div>
 
-              {/* ì‚¬ì§„ ì„¤ì • (êµ¬ë„ ë° ë¹„ìœ¨) */}
-              <div className="mb-6 bg-purple-900/20 border border-purple-500/50 rounded-lg p-6">
-                <h3 className="text-purple-300 font-medium mb-4 flex items-center">
-                  <span className="mr-2">ğŸ“</span>
-                  ì‚¬ì§„ ì„¤ì •
+              {/* »çÁø ¼³Á¤ (±¸µµ ¹× ºñÀ²) */}
+              <div className="mb-6 bg-blue-900/20 border border-blue-500/50 rounded-lg p-6">
+                <h3 className="text-blue-300 font-medium mb-4 flex items-center">
+                  <span className="mr-2">??</span>
+                  »çÁø ¼³Á¤
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* ì™¼ìª½: ì‚¬ì§„ êµ¬ë„ ì„ íƒ */}
+                  {/* ¿ŞÂÊ: »çÁø ±¸µµ ¼±ÅÃ */}
                   <div>
-                    <label className="block text-purple-200 text-sm font-medium mb-2">
-                      ì‚¬ì§„ êµ¬ë„
+                    <label className="block text-blue-200 text-sm font-medium mb-2">
+                      »çÁø ±¸µµ
                     </label>
                     <select
                       value={photoComposition}
                       onChange={(e) =>
                         setPhotoComposition(e.target.value as PhotoComposition)
                       }
-                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-white"
+                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-white"
                     >
-                      <option value="ì •ë©´">ì •ë©´ (ê¸°ë³¸)</option>
-                      <option value="ì¸¡ë©´">ì¸¡ë©´</option>
-                      <option value="ë°˜ì¸¡ë©´">ë°˜ì¸¡ë©´</option>
-                      <option value="ìœ„ì—ì„œ">ìœ„ì—ì„œ</option>
-                      <option value="ì•„ë˜ì—ì„œ">ì•„ë˜ì—ì„œ</option>
-                      <option value="ì „ì‹ ">ì „ì‹ </option>
-                      <option value="ìƒë°˜ì‹ ">ìƒë°˜ì‹ </option>
-                      <option value="í´ë¡œì¦ˆì—…">í´ë¡œì¦ˆì—…</option>
+                      <option value="Á¤¸é">Á¤¸é (±âº»)</option>
+                      <option value="Ãø¸é">Ãø¸é</option>
+                      <option value="¹İÃø¸é">¹İÃø¸é</option>
+                      <option value="À§¿¡¼­">À§¿¡¼­</option>
+                      <option value="¾Æ·¡¿¡¼­">¾Æ·¡¿¡¼­</option>
+                      <option value="Àü½Å">Àü½Å</option>
+                      <option value="»ó¹İ½Å">»ó¹İ½Å</option>
+                      <option value="Å¬·ÎÁî¾÷">Å¬·ÎÁî¾÷</option>
                     </select>
                   </div>
 
-                  {/* ì˜¤ë¥¸ìª½: ì´ë¯¸ì§€ ë¹„ìœ¨ ì„ íƒ */}
+                  {/* ¿À¸¥ÂÊ: ÀÌ¹ÌÁö ºñÀ² ¼±ÅÃ */}
                   <div>
-                    <label className="block text-purple-200 text-sm font-medium mb-2">
-                      ì´ë¯¸ì§€ ë¹„ìœ¨
+                    <label className="block text-blue-200 text-sm font-medium mb-2">
+                      ÀÌ¹ÌÁö ºñÀ²
                     </label>
                     <select
                       value={aspectRatio}
                       onChange={(e) =>
                         setAspectRatio(e.target.value as AspectRatio)
                       }
-                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-white"
+                      className="w-full p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-white"
                     >
-                      <option value="9:16">ğŸ“± 9:16 - ëª¨ë°”ì¼ ì„¸ë¡œ</option>
-                      <option value="16:9">ğŸ–¥ï¸ 16:9 - ë°ìŠ¤í¬í†± ê°€ë¡œ</option>
-                      <option value="1:1">â¬œ 1:1 - ì •ì‚¬ê°í˜•</option>
+                      <option value="9:16">?? 9:16 - ¸ğ¹ÙÀÏ ¼¼·Î</option>
+                      <option value="16:9">??? 16:9 - µ¥½ºÅ©Åé °¡·Î</option>
+                      <option value="1:1">? 1:1 - Á¤»ç°¢Çü</option>
                     </select>
                   </div>
                 </div>
 
                 <div className="text-xs text-gray-400 mt-3">
-                  ğŸ’¡ ì‚¬ì§„ êµ¬ë„ì™€ ì´ë¯¸ì§€ ë¹„ìœ¨ì„ ì¡°í•©í•˜ì—¬ ì›í•˜ëŠ” ìŠ¤íƒ€ì¼ì˜ ì´ë¯¸ì§€ë¥¼
-                  ë§Œë“œì„¸ìš”.
+                  ?? »çÁø ±¸µµ¿Í ÀÌ¹ÌÁö ºñÀ²À» Á¶ÇÕÇÏ¿© ¿øÇÏ´Â ½ºÅ¸ÀÏÀÇ ÀÌ¹ÌÁö¸¦
+                  ¸¸µå¼¼¿ä.
                 </div>
               </div>
 
-              {/* ìŠ¤íƒ€ì¼ ì°¸ì¡° ì´ë¯¸ì§€ ì—…ë¡œë“œ (ì„ íƒì‚¬í•­) */}
-              <div className="mb-6 bg-purple-900/20 border border-purple-500/50 rounded-lg p-6">
-                <h3 className="text-purple-300 font-medium mb-4 flex items-center">
-                  <span className="mr-2">ğŸ–¼ï¸</span>
-                  ìŠ¤íƒ€ì¼ ì°¸ì¡° ì´ë¯¸ì§€ (ì„ íƒì‚¬í•­)
+              {/* ½ºÅ¸ÀÏ ÂüÁ¶ ÀÌ¹ÌÁö ¾÷·Îµå (¼±ÅÃ»çÇ×) */}
+              <div className="mb-6 bg-blue-900/20 border border-blue-500/50 rounded-lg p-6">
+                <h3 className="text-blue-300 font-medium mb-4 flex items-center">
+                  <span className="mr-2">???</span>
+                  ½ºÅ¸ÀÏ ÂüÁ¶ ÀÌ¹ÌÁö (¼±ÅÃ»çÇ×)
                 </h3>
                 <p className="text-gray-400 text-sm mb-4">
-                  ì›í•˜ëŠ” ìŠ¤íƒ€ì¼ì˜ ì‚¬ì§„ì„ ì—…ë¡œë“œí•˜ë©´ í•´ë‹¹ ìŠ¤íƒ€ì¼ì„ ì°¸ê³ í•˜ì—¬
-                  í˜ë¥´ì†Œë‚˜ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+                  ¿øÇÏ´Â ½ºÅ¸ÀÏÀÇ »çÁøÀ» ¾÷·ÎµåÇÏ¸é ÇØ´ç ½ºÅ¸ÀÏÀ» Âü°íÇÏ¿©
+                  Æä¸£¼Ò³ª¸¦ »ı¼ºÇÕ´Ï´Ù.
                 </p>
 
                 {!personaReferenceImage ? (
                   <label className="block w-full cursor-pointer">
-                    <div className="border-2 border-dashed border-purple-500 rounded-lg p-8 text-center hover:border-purple-400 hover:bg-purple-900/10 transition-all">
-                      <div className="text-purple-300 text-4xl mb-3">ğŸ“·</div>
-                      <p className="text-purple-200 font-medium mb-1">
-                        ì°¸ì¡° ì´ë¯¸ì§€ ì—…ë¡œë“œ
+                    <div className="border-2 border-dashed border-blue-500 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-blue-900/10 transition-all">
+                      <div className="text-blue-300 text-4xl mb-3">??</div>
+                      <p className="text-blue-200 font-medium mb-1">
+                        ÂüÁ¶ ÀÌ¹ÌÁö ¾÷·Îµå
                       </p>
                       <p className="text-gray-400 text-sm">
-                        í´ë¦­í•˜ì—¬ ì´ë¯¸ì§€ ì„ íƒ (JPG, PNG)
+                        Å¬¸¯ÇÏ¿© ÀÌ¹ÌÁö ¼±ÅÃ (JPG, PNG)
                       </p>
                     </div>
                     <input
@@ -1777,8 +1777,8 @@ const App: React.FC<ImageAppProps> = ({
                             };
                             reader.readAsDataURL(file);
                           } catch (error) {
-                            console.error("ì´ë¯¸ì§€ ë¡œë“œ ì‹¤íŒ¨:", error);
-                            setError("ì´ë¯¸ì§€ë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ”ë° ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.");
+                            console.error("ÀÌ¹ÌÁö ·Îµå ½ÇÆĞ:", error);
+                            setError("ÀÌ¹ÌÁö¸¦ ºÒ·¯¿À´Âµ¥ ½ÇÆĞÇß½À´Ï´Ù.");
                           }
                         }
                       }}
@@ -1788,29 +1788,29 @@ const App: React.FC<ImageAppProps> = ({
                   <div className="relative">
                     <img
                       src={`data:image/jpeg;base64,${personaReferenceImage}`}
-                      alt="ì°¸ì¡° ì´ë¯¸ì§€"
-                      className="w-full max-h-64 object-contain rounded-lg border-2 border-purple-500"
+                      alt="ÂüÁ¶ ÀÌ¹ÌÁö"
+                      className="w-full max-h-64 object-contain rounded-lg border-2 border-blue-500"
                     />
                     <button
                       onClick={() => setPersonaReferenceImage(null)}
                       className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors"
                     >
-                      âœ• ì‚­ì œ
+                      ? »èÁ¦
                     </button>
                     <p className="text-green-400 text-sm mt-2 flex items-center">
-                      <span className="mr-2">âœ…</span>
-                      ì°¸ì¡° ì´ë¯¸ì§€ê°€ ì—…ë¡œë“œë˜ì—ˆìŠµë‹ˆë‹¤
+                      <span className="mr-2">?</span>
+                      ÂüÁ¶ ÀÌ¹ÌÁö°¡ ¾÷·ÎµåµÇ¾ú½À´Ï´Ù
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* ì»¤ìŠ¤í…€ í”„ë¡¬í”„íŠ¸ (ì„ íƒì‚¬í•­) */}
-              <div className="mb-6 bg-purple-900/20 border border-purple-500/50 rounded-lg p-6">
+              {/* Ä¿½ºÅÒ ÇÁ·ÒÇÁÆ® (¼±ÅÃ»çÇ×) */}
+              <div className="mb-6 bg-blue-900/20 border border-blue-500/50 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-purple-300 font-medium flex items-center">
-                    <span className="mr-2">âš¡</span>
-                    ì»¤ìŠ¤í…€ ì´ë¯¸ì§€ í”„ë¡¬í”„íŠ¸ (ì„ íƒì‚¬í•­)
+                  <h3 className="text-blue-300 font-medium flex items-center">
+                    <span className="mr-2">?</span>
+                    Ä¿½ºÅÒ ÀÌ¹ÌÁö ÇÁ·ÒÇÁÆ® (¼±ÅÃ»çÇ×)
                   </h3>
                   <button
                     onClick={() => {
@@ -1818,35 +1818,35 @@ const App: React.FC<ImageAppProps> = ({
                     }}
                     className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-lg text-sm transition-all duration-200 transform hover:scale-105 flex items-center"
                   >
-                    <span className="mr-2">ğŸ¯</span>
-                    ë‚´ê°€ ì›í•˜ëŠ” ì´ë¯¸ì§€ 200% ë½‘ëŠ” ë…¸í•˜ìš°
+                    <span className="mr-2">??</span>
+                    ³»°¡ ¿øÇÏ´Â ÀÌ¹ÌÁö 200% »Ì´Â ³ëÇÏ¿ì
                   </button>
                 </div>
 
                 <textarea
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  placeholder="ê³ ê¸‰ ì‚¬ìš©ììš©: AIì—ê²Œ ì „ë‹¬í•  êµ¬ì²´ì ì¸ ì´ë¯¸ì§€ í”„ë¡¬í”„íŠ¸ë¥¼ ì§ì ‘ ì…ë ¥í•˜ì„¸ìš” (ì˜ì–´ ê¶Œì¥)"
-                  className="w-full h-24 p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors resize-y"
+                  placeholder="°í±Ş »ç¿ëÀÚ¿ë: AI¿¡°Ô Àü´ŞÇÒ ±¸Ã¼ÀûÀÎ ÀÌ¹ÌÁö ÇÁ·ÒÇÁÆ®¸¦ Á÷Á¢ ÀÔ·ÂÇÏ¼¼¿ä (¿µ¾î ±ÇÀå)"
+                  className="w-full h-24 p-3 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
                 />
                 <p className="text-gray-400 text-xs mt-2">
-                  ğŸ’¡ ì´ í•„ë“œëŠ” ê³ ê¸‰ ì‚¬ìš©ìë¥¼ ìœ„í•œ ê¸°ëŠ¥ì…ë‹ˆë‹¤. ë¹„ì›Œë‘ë©´ ìë™ìœ¼ë¡œ
-                  ìµœì í™”ëœ í”„ë¡¬í”„íŠ¸ê°€ ìƒì„±ë©ë‹ˆë‹¤.
+                  ?? ÀÌ ÇÊµå´Â °í±Ş »ç¿ëÀÚ¸¦ À§ÇÑ ±â´ÉÀÔ´Ï´Ù. ºñ¿öµÎ¸é ÀÚµ¿À¸·Î
+                  ÃÖÀûÈ­µÈ ÇÁ·ÒÇÁÆ®°¡ »ı¼ºµË´Ï´Ù.
                 </p>
               </div>
 
-              {/* ì½˜í…ì¸  ì •ì±… ìœ„ë°˜ ê²½ê³  */}
+              {/* ÄÜÅÙÃ÷ Á¤Ã¥ À§¹İ °æ°í */}
               {contentWarning && !isContentWarningAcknowledged && (
                 <div className="mt-4 bg-orange-900/50 border border-orange-500 text-orange-300 p-4 rounded-lg">
                   <div className="flex items-start">
-                    <span className="text-orange-400 text-xl mr-3">âš ï¸</span>
+                    <span className="text-orange-400 text-xl mr-3">??</span>
                     <div className="flex-1">
                       <p className="font-medium mb-2">
-                        ì½˜í…ì¸  ì •ì±… ìœ„ë°˜ ê°€ëŠ¥ì„±ì´ ìˆëŠ” ë‹¨ì–´ê°€ ê°ì§€ë˜ì—ˆìŠµë‹ˆë‹¤
+                        ÄÜÅÙÃ÷ Á¤Ã¥ À§¹İ °¡´É¼ºÀÌ ÀÖ´Â ´Ü¾î°¡ °¨ÁöµÇ¾ú½À´Ï´Ù
                       </p>
                       <div className="mb-3">
                         <p className="text-sm text-orange-200 mb-2">
-                          ê°ì§€ëœ ë‹¨ì–´:
+                          °¨ÁöµÈ ´Ü¾î:
                         </p>
                         <div className="flex flex-wrap gap-2 mb-3">
                           {contentWarning.unsafeWords.map((word, index) => (
@@ -1864,13 +1864,13 @@ const App: React.FC<ImageAppProps> = ({
                           onClick={handleAutoReplace}
                           className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center"
                         >
-                          ğŸ”„ ì•ˆì „í•œ ë‹¨ì–´ë¡œ ìë™ êµì²´
+                          ?? ¾ÈÀüÇÑ ´Ü¾î·Î ÀÚµ¿ ±³Ã¼
                         </button>
                         <button
                           onClick={handleAcknowledgeWarning}
                           className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
                         >
-                          ë¬´ì‹œí•˜ê³  ê³„ì†
+                          ¹«½ÃÇÏ°í °è¼Ó
                         </button>
                       </div>
                     </div>
@@ -1886,24 +1886,24 @@ const App: React.FC<ImageAppProps> = ({
                   !apiKey.trim() ||
                   (hasContentWarning && !isContentWarningAcknowledged)
                 }
-                className="mt-4 w-full sm:w-auto px-6 py-3 bg-purple-600 font-semibold rounded-lg hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                className="mt-4 w-full sm:w-auto px-6 py-3 bg-blue-600 font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
               >
                 {isLoadingCharacters ? (
                   <>
                     <Spinner size="sm" />{" "}
-                    <span className="ml-2">í˜ë¥´ì†Œë‚˜ ìƒì„± ì¤‘...</span>
+                    <span className="ml-2">Æä¸£¼Ò³ª »ı¼º Áß...</span>
                   </>
                 ) : (
-                  "í˜ë¥´ì†Œë‚˜ ìƒì„±"
+                  "Æä¸£¼Ò³ª »ı¼º"
                 )}
               </button>
             </section>
 
-            {/* í˜ë¥´ì†Œë‚˜ ìƒì„± ê´€ë ¨ ì˜¤ë¥˜/ì„±ê³µ ë©”ì‹œì§€ í‘œì‹œ */}
+            {/* Æä¸£¼Ò³ª »ı¼º °ü·Ã ¿À·ù/¼º°ø ¸Ş½ÃÁö Ç¥½Ã */}
             {personaError && (
               <div
                 className={
-                  personaError.startsWith("âœ…")
+                  personaError.startsWith("?")
                     ? "bg-green-900/50 border border-green-500 text-green-300 p-4 rounded-lg"
                     : "bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg"
                 }
@@ -1911,24 +1911,24 @@ const App: React.FC<ImageAppProps> = ({
                 <div className="flex items-start">
                   <span
                     className={
-                      personaError.startsWith("âœ…")
+                      personaError.startsWith("?")
                         ? "text-green-400 text-xl mr-3"
                         : "text-red-400 text-xl mr-3"
                     }
                   >
-                    {personaError.startsWith("âœ…") ? "âœ…" : "âš ï¸"}
+                    {personaError.startsWith("?") ? "?" : "??"}
                   </span>
                   <div className="flex-1">
                     <pre className="font-medium mb-2 whitespace-pre-wrap text-sm leading-relaxed">{personaError}</pre>
                     <button
                       onClick={() => setPersonaError(null)}
                       className={
-                        personaError.startsWith("âœ…")
+                        personaError.startsWith("?")
                           ? "mt-3 text-green-400 hover:text-green-300 text-sm underline"
                           : "mt-3 text-red-400 hover:text-red-300 text-sm underline"
                       }
                     >
-                      ì˜¤ë¥˜ ë©”ì‹œì§€ ë‹«ê¸°
+                      ¿À·ù ¸Ş½ÃÁö ´İ±â
                     </button>
                   </div>
                 </div>
@@ -1938,21 +1938,21 @@ const App: React.FC<ImageAppProps> = ({
             {isLoadingCharacters && (
               <div className="text-center p-8">
                 <Spinner size="lg" />
-                <p className="mt-4 text-purple-300 text-lg font-semibold">
-                  ë“±ì¥ì¸ë¬¼ì„ ë¶„ì„í•˜ê³  ì´ë¯¸ì§€ë¥¼ ìƒì„±í•˜ê³  ìˆìŠµë‹ˆë‹¤...
+                <p className="mt-4 text-blue-300 text-lg font-semibold">
+                  µîÀåÀÎ¹°À» ºĞ¼®ÇÏ°í ÀÌ¹ÌÁö¸¦ »ı¼ºÇÏ°í ÀÖ½À´Ï´Ù...
                 </p>
                 {loadingProgress && (
-                  <div className="mt-4 bg-purple-900/30 border border-purple-500/50 rounded-lg p-4 max-w-md mx-auto">
-                    <p className="text-purple-300 font-bold text-lg animate-pulse">
-                      ğŸ“‹ {loadingProgress}
+                  <div className="mt-4 bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 max-w-md mx-auto">
+                    <p className="text-blue-300 font-bold text-lg animate-pulse">
+                      ?? {loadingProgress}
                     </p>
                   </div>
                 )}
                 <p className="mt-4 text-gray-400 text-sm">
-                  â³ API ê³¼ë¶€í•˜ ë°©ì§€ë¥¼ ìœ„í•´ ìºë¦­í„° ê°„ 3-4ì´ˆ ëŒ€ê¸° ì‹œê°„ì´ ìˆìŠµë‹ˆë‹¤.
+                  ? API °úºÎÇÏ ¹æÁö¸¦ À§ÇØ Ä³¸¯ÅÍ °£ 3-4ÃÊ ´ë±â ½Ã°£ÀÌ ÀÖ½À´Ï´Ù.
                 </p>
                 <p className="mt-2 text-gray-500 text-xs">
-                  ì ì‹œë§Œ ê¸°ë‹¤ë ¤ ì£¼ì„¸ìš”. ê³ í’ˆì§ˆ ì´ë¯¸ì§€ë¥¼ ìƒì„±í•˜ëŠ” ì¤‘ì…ë‹ˆë‹¤.
+                  Àá½Ã¸¸ ±â´Ù·Á ÁÖ¼¼¿ä. °íÇ°Áú ÀÌ¹ÌÁö¸¦ »ı¼ºÇÏ´Â ÁßÀÔ´Ï´Ù.
                 </p>
               </div>
             )}
@@ -1960,8 +1960,8 @@ const App: React.FC<ImageAppProps> = ({
             {characters.length > 0 && (
               <section>
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-purple-300">
-                    ìƒì„±ëœ í˜ë¥´ì†Œë‚˜ ({characters.length}ê°œ)
+                  <h2 className="text-2xl font-bold text-blue-300">
+                    »ı¼ºµÈ Æä¸£¼Ò³ª ({characters.length}°³)
                   </h2>
                   <button
                     onClick={async () => {
@@ -1971,7 +1971,7 @@ const App: React.FC<ImageAppProps> = ({
                         
                         for (let index = 0; index < characters.length; index++) {
                           const char = characters[index];
-                          const safeCharName = char.name.replace(/[^a-zA-Z0-9ã„±-ã…ã…-ã…£ê°€-í£]/g, '_');
+                          const safeCharName = char.name.replace(/[^a-zA-Z0-9¤¡-¤¾¤¿-¤Ó°¡-ÆR]/g, '_');
                           const fileName = `${index + 1}_${safeCharName}.jpg`;
                           
                           try {
@@ -1984,7 +1984,7 @@ const App: React.FC<ImageAppProps> = ({
                                   suggestedName: fileName,
                                   types: [
                                     {
-                                      description: 'ì´ë¯¸ì§€ íŒŒì¼',
+                                      description: 'ÀÌ¹ÌÁö ÆÄÀÏ',
                                       accept: {
                                         'image/jpeg': ['.jpg', '.jpeg'],
                                       },
@@ -1999,7 +1999,7 @@ const App: React.FC<ImageAppProps> = ({
                               } catch (err: any) {
                                 if (err.name === 'AbortError') {
                                   cancelCount++;
-                                  console.log(`[${index + 1}/${characters.length}] ì‚¬ìš©ìê°€ ì €ì¥ì„ ì·¨ì†Œí–ˆìŠµë‹ˆë‹¤.`);
+                                  console.log(`[${index + 1}/${characters.length}] »ç¿ëÀÚ°¡ ÀúÀåÀ» Ãë¼ÒÇß½À´Ï´Ù.`);
                                 } else {
                                   throw err;
                                 }
@@ -2016,29 +2016,29 @@ const App: React.FC<ImageAppProps> = ({
                               await new Promise(resolve => setTimeout(resolve, 300));
                             }
                           } catch (err) {
-                            console.error(`[ê°œë°œììš©] í˜ë¥´ì†Œë‚˜ ${index + 1} ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:`, err);
+                            console.error(`[°³¹ßÀÚ¿ë] Æä¸£¼Ò³ª ${index + 1} ´Ù¿î·Îµå ¿À·ù:`, err);
                             throw err;
                           }
                         }
                         
                         if (successCount > 0) {
-                          setPersonaError(`âœ… ${successCount}ê°œì˜ í˜ë¥´ì†Œë‚˜ê°€ ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤!` + 
-                                  (cancelCount > 0 ? ` (${cancelCount}ê°œ ì·¨ì†Œë¨)` : ''));
+                          setPersonaError(`? ${successCount}°³ÀÇ Æä¸£¼Ò³ª°¡ ÀúÀåµÇ¾ú½À´Ï´Ù!` + 
+                                  (cancelCount > 0 ? ` (${cancelCount}°³ Ãë¼ÒµÊ)` : ''));
                         } else if (cancelCount > 0) {
-                          setPersonaError(`ëª¨ë“  ë‹¤ìš´ë¡œë“œê°€ ì·¨ì†Œë˜ì—ˆìŠµë‹ˆë‹¤.`);
+                          setPersonaError(`¸ğµç ´Ù¿î·Îµå°¡ Ãë¼ÒµÇ¾ú½À´Ï´Ù.`);
                         }
                       } catch (error) {
-                        console.error("[ê°œë°œììš©] í˜ë¥´ì†Œë‚˜ ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:", error);
+                        console.error("[°³¹ßÀÚ¿ë] Æä¸£¼Ò³ª ´Ù¿î·Îµå ¿À·ù:", error);
                         
-                        let userMessage = "í˜ë¥´ì†Œë‚˜ ë‹¤ìš´ë¡œë“œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.";
+                        let userMessage = "Æä¸£¼Ò³ª ´Ù¿î·Îµå¿¡ ½ÇÆĞÇß½À´Ï´Ù. ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.";
                         
                         if (error instanceof Error) {
-                          console.error(`[ê°œë°œììš©] ì˜¤ë¥˜ ìƒì„¸: ${error.name} - ${error.message}`);
+                          console.error(`[°³¹ßÀÚ¿ë] ¿À·ù »ó¼¼: ${error.name} - ${error.message}`);
                           
                           if (error.name === 'NotAllowedError') {
-                            userMessage = "íŒŒì¼ ì €ì¥ ê¶Œí•œì´ ê±°ë¶€ë˜ì—ˆìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì € ì„¤ì •ì„ í™•ì¸í•´ ì£¼ì„¸ìš”.";
+                            userMessage = "ÆÄÀÏ ÀúÀå ±ÇÇÑÀÌ °ÅºÎµÇ¾ú½À´Ï´Ù. ºê¶ó¿ìÀú ¼³Á¤À» È®ÀÎÇØ ÁÖ¼¼¿ä.";
                           } else if (error.name === 'SecurityError') {
-                            userMessage = "ë³´ì•ˆ ë¬¸ì œë¡œ íŒŒì¼ì„ ì €ì¥í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì €ë¥¼ ì—…ë°ì´íŠ¸í•˜ê±°ë‚˜ ë‹¤ë¥¸ ë¸Œë¼ìš°ì €ë¥¼ ì‚¬ìš©í•´ ì£¼ì„¸ìš”.";
+                            userMessage = "º¸¾È ¹®Á¦·Î ÆÄÀÏÀ» ÀúÀåÇÒ ¼ö ¾ø½À´Ï´Ù. ºê¶ó¿ìÀú¸¦ ¾÷µ¥ÀÌÆ®ÇÏ°Å³ª ´Ù¸¥ ºê¶ó¿ìÀú¸¦ »ç¿ëÇØ ÁÖ¼¼¿ä.";
                           }
                         }
                         
@@ -2047,7 +2047,7 @@ const App: React.FC<ImageAppProps> = ({
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
                   >
-                    ğŸ“¥ ëª¨ë‘ ë‹¤ìš´ë¡œë“œ ({characters.length}ê°œ)
+                    ?? ¸ğµÎ ´Ù¿î·Îµå ({characters.length}°³)
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -2062,50 +2062,50 @@ const App: React.FC<ImageAppProps> = ({
               </section>
             )}
 
-            {/* ê´‘ê³  2: í˜ë¥´ì†Œë‚˜ ìƒì„±ê³¼ ì˜ìƒ ì†ŒìŠ¤ ìƒì„± ì‚¬ì´ */}
+            {/* ±¤°í 2: Æä¸£¼Ò³ª »ı¼º°ú ¿µ»ó ¼Ò½º »ı¼º »çÀÌ */}
             <AdBanner />
 
-            {/* 3ë‹¨ê³„ëŠ” í•­ìƒ í‘œì‹œ */}
+            {/* 3´Ü°è´Â Ç×»ó Ç¥½Ã */}
             <section className="bg-gray-800 p-6 rounded-xl shadow-2xl border-2 border-green-500">
               <h2 className="text-2xl font-bold mb-4 text-green-400 flex items-center">
-                <span className="mr-2">2ï¸âƒ£</span>
-                ì˜ìƒ ì†ŒìŠ¤ ìƒì„±
+                <span className="mr-2">2??</span>
+                ¿µ»ó ¼Ò½º »ı¼º
               </h2>
               <div className="mb-4">
                 <p className="text-gray-400 text-sm mb-3">
                   {referenceImage
-                    ? "ì°¸ì¡° ì´ë¯¸ì§€ë¥¼ ê¸°ë°˜ìœ¼ë¡œ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ìƒì„±í•©ë‹ˆë‹¤. í˜ë¥´ì†Œë‚˜ ìƒì„± ì—†ì´ ë°”ë¡œ ì§„í–‰ ê°€ëŠ¥í•©ë‹ˆë‹¤."
-                    : "ìœ„ì—ì„œ ìƒì„±í•œ í˜ë¥´ì†Œë‚˜ë¥¼ í™œìš©í•˜ì—¬ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ë§Œë“­ë‹ˆë‹¤."}{" "}
-                  ëŒ€ë³¸ ë˜ëŠ” ì‹œí€€ìŠ¤ë³„ ì¥ë©´ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.
+                    ? "ÂüÁ¶ ÀÌ¹ÌÁö¸¦ ±â¹İÀ¸·Î ¿µ»ó ¼Ò½º¸¦ »ı¼ºÇÕ´Ï´Ù. Æä¸£¼Ò³ª »ı¼º ¾øÀÌ ¹Ù·Î ÁøÇà °¡´ÉÇÕ´Ï´Ù."
+                    : "À§¿¡¼­ »ı¼ºÇÑ Æä¸£¼Ò³ª¸¦ È°¿ëÇÏ¿© ¿µ»ó ¼Ò½º¸¦ ¸¸µì´Ï´Ù."}{" "}
+                  ´ëº» ¶Ç´Â ½ÃÄö½ºº° Àå¸éÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä.
                 </p>
                 <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-4 mb-4">
                   <p className="text-green-200 text-sm mb-2">
-                    <strong>ì…ë ¥ ë°©ë²•:</strong>
+                    <strong>ÀÔ·Â ¹æ¹ı:</strong>
                   </p>
                   <ul className="text-green-300 text-sm space-y-1 ml-4">
                     <li>
-                      â€¢ <strong>ì „ì²´ ëŒ€ë³¸:</strong> ì™„ì „í•œ ìŠ¤í¬ë¦½íŠ¸ë‚˜ ìŠ¤í† ë¦¬ë¥¼
-                      ì…ë ¥
+                      ? <strong>ÀüÃ¼ ´ëº»:</strong> ¿ÏÀüÇÑ ½ºÅ©¸³Æ®³ª ½ºÅä¸®¸¦
+                      ÀÔ·Â
                     </li>
                     <li>
-                      â€¢ <strong>ì‹œí€€ìŠ¤ë³„ ì¥ë©´:</strong> ê° ì¤„ì— í•˜ë‚˜ì”© ì¥ë©´
-                      ì„¤ëª…ì„ ì…ë ¥
+                      ? <strong>½ÃÄö½ºº° Àå¸é:</strong> °¢ ÁÙ¿¡ ÇÏ³ª¾¿ Àå¸é
+                      ¼³¸íÀ» ÀÔ·Â
                     </li>
                   </ul>
                 </div>
               </div>
 
-              {/* ì¼ê´€ì„± ìœ ì§€ (ì„ íƒì‚¬í•­) - ì˜ìƒ ì†ŒìŠ¤ ìƒì„±ìœ¼ë¡œ ì´ë™ */}
+              {/* ÀÏ°ü¼º À¯Áö (¼±ÅÃ»çÇ×) - ¿µ»ó ¼Ò½º »ı¼ºÀ¸·Î ÀÌµ¿ */}
               <div className="mb-6 bg-green-900/20 border border-green-500/50 rounded-lg p-6">
                 <h3 className="text-green-300 font-medium mb-3 flex items-center">
-                  <span className="mr-2">ğŸ¨</span>
-                  ì¼ê´€ì„± ìœ ì§€ (ì„ íƒì‚¬í•­)
+                  <span className="mr-2">??</span>
+                  ÀÏ°ü¼º À¯Áö (¼±ÅÃ»çÇ×)
                 </h3>
                 <p className="text-green-200 text-sm mb-3">
-                  ì°¸ì¡° ì´ë¯¸ì§€ë¥¼ ì—…ë¡œë“œí•˜ë©´ í•´ë‹¹ ì´ë¯¸ì§€ì˜ ìŠ¤íƒ€ì¼ê³¼ ì¼ê´€ì„±ì„
-                  ìœ ì§€í•˜ë©° ì˜ìƒ ì†ŒìŠ¤ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+                  ÂüÁ¶ ÀÌ¹ÌÁö¸¦ ¾÷·ÎµåÇÏ¸é ÇØ´ç ÀÌ¹ÌÁöÀÇ ½ºÅ¸ÀÏ°ú ÀÏ°ü¼ºÀ»
+                  À¯ÁöÇÏ¸ç ¿µ»ó ¼Ò½º¸¦ »ı¼ºÇÕ´Ï´Ù.
                   {!referenceImage &&
-                    " ì°¸ì¡° ì´ë¯¸ì§€ê°€ ìˆìœ¼ë©´ í˜ë¥´ì†Œë‚˜ ìƒì„± ì—†ì´ë„ ë°”ë¡œ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ë§Œë“¤ ìˆ˜ ìˆìŠµë‹ˆë‹¤!"}
+                    " ÂüÁ¶ ÀÌ¹ÌÁö°¡ ÀÖÀ¸¸é Æä¸£¼Ò³ª »ı¼º ¾øÀÌµµ ¹Ù·Î ¿µ»ó ¼Ò½º¸¦ ¸¸µé ¼ö ÀÖ½À´Ï´Ù!"}
                 </p>
 
                 {!referenceImage ? (
@@ -2121,12 +2121,12 @@ const App: React.FC<ImageAppProps> = ({
                       htmlFor="referenceImageInput"
                       className="cursor-pointer flex flex-col items-center space-y-2 hover:text-green-300 transition-colors"
                     >
-                      <div className="text-3xl">ğŸ“¸</div>
+                      <div className="text-3xl">??</div>
                       <div className="text-green-300 font-medium">
-                        ì°¸ì¡° ì´ë¯¸ì§€ ì—…ë¡œë“œ
+                        ÂüÁ¶ ÀÌ¹ÌÁö ¾÷·Îµå
                       </div>
                       <div className="text-green-400 text-sm">
-                        í´ë¦­í•˜ì—¬ ì´ë¯¸ì§€ë¥¼ ì„ íƒí•˜ì„¸ìš”
+                        Å¬¸¯ÇÏ¿© ÀÌ¹ÌÁö¸¦ ¼±ÅÃÇÏ¼¼¿ä
                       </div>
                     </label>
                   </div>
@@ -2135,22 +2135,22 @@ const App: React.FC<ImageAppProps> = ({
                     <div className="flex items-center space-x-4">
                       <img
                         src={`data:image/jpeg;base64,${referenceImage}`}
-                        alt="ì°¸ì¡° ì´ë¯¸ì§€"
+                        alt="ÂüÁ¶ ÀÌ¹ÌÁö"
                         className="w-20 h-20 object-cover rounded-lg"
                       />
                       <div className="flex-1">
                         <div className="text-green-300 font-medium">
-                          ì°¸ì¡° ì´ë¯¸ì§€ ì—…ë¡œë“œë¨
+                          ÂüÁ¶ ÀÌ¹ÌÁö ¾÷·ÎµåµÊ
                         </div>
                         <div className="text-green-400 text-sm">
-                          ì´ ì´ë¯¸ì§€ì˜ ìŠ¤íƒ€ì¼ì„ ì°¸ê³ í•˜ì—¬ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ìƒì„±í•©ë‹ˆë‹¤
+                          ÀÌ ÀÌ¹ÌÁöÀÇ ½ºÅ¸ÀÏÀ» Âü°íÇÏ¿© ¿µ»ó ¼Ò½º¸¦ »ı¼ºÇÕ´Ï´Ù
                         </div>
                       </div>
                       <button
                         onClick={handleRemoveReferenceImage}
                         className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
                       >
-                        ì‚­ì œ
+                        »èÁ¦
                       </button>
                     </div>
                   </div>
@@ -2159,27 +2159,27 @@ const App: React.FC<ImageAppProps> = ({
               <textarea
                 value={videoSourceScript}
                 onChange={(e) => setVideoSourceScript(e.target.value)}
-                placeholder="ëŒ€ë³¸ ì „ì²´ë¥¼ ë„£ìœ¼ì„¸ìš”. ë˜ëŠ” ì‹œí€€ìŠ¤ë³„ ì›í•˜ëŠ” ì¥ë©´ì„ ë„£ìœ¼ì„¸ìš”.
+                placeholder="´ëº» ÀüÃ¼¸¦ ³ÖÀ¸¼¼¿ä. ¶Ç´Â ½ÃÄö½ºº° ¿øÇÏ´Â Àå¸éÀ» ³ÖÀ¸¼¼¿ä.
 
-ì˜ˆì‹œ:
-1. ë¯¸ë˜ ë„ì‹œ ì˜¥ìƒì—ì„œ ë¡œë´‡ì´ ìƒˆë²½ì„ ë°”ë¼ë³´ë©° ì„œ ìˆëŠ” ì¥ë©´
-2. ê³µì¤‘ì •ì›ì—ì„œ í™€ë¡œê·¸ë¨ ë‚˜ë¹„ë“¤ì´ ì¶¤ì¶”ëŠ” ëª¨ìŠµ  
-3. ë„¤ì˜¨ì‚¬ì¸ì´ ë°˜ì‚¬ëœ ë¹—ì† ê±°ë¦¬ë¥¼ ê±¸ì–´ê°€ëŠ” ì‚¬ì´ë³´ê·¸
-4. ìš°ì£¼ ì •ê±°ì¥ ì°½ë¬¸ ë„ˆë¨¸ë¡œ ì§€êµ¬ë¥¼ ë‚´ë ¤ë‹¤ë³´ëŠ” ì¥ë©´"
+¿¹½Ã:
+1. ¹Ì·¡ µµ½Ã ¿Á»ó¿¡¼­ ·Îº¿ÀÌ »õº®À» ¹Ù¶óº¸¸ç ¼­ ÀÖ´Â Àå¸é
+2. °øÁßÁ¤¿ø¿¡¼­ È¦·Î±×·¥ ³ªºñµéÀÌ ÃãÃß´Â ¸ğ½À  
+3. ³×¿Â»çÀÎÀÌ ¹İ»çµÈ ºø¼Ó °Å¸®¸¦ °É¾î°¡´Â »çÀÌº¸±×
+4. ¿ìÁÖ Á¤°ÅÀå Ã¢¹® ³Ê¸Ó·Î Áö±¸¸¦ ³»·Á´Ùº¸´Â Àå¸é"
                 className="w-full h-48 p-4 bg-gray-900 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-y mb-4"
               />
 
-              {/* ìƒì„± ì˜µì…˜ ì„¤ì • */}
+              {/* »ı¼º ¿É¼Ç ¼³Á¤ */}
               <div className="mb-4 bg-green-900/20 border border-green-500/50 rounded-lg p-4">
                 <h3 className="text-green-300 font-medium mb-3 flex items-center">
-                  <span className="mr-2">âš™ï¸</span>
-                  ìƒì„± ì˜µì…˜ ì„¤ì •
+                  <span className="mr-2">??</span>
+                  »ı¼º ¿É¼Ç ¼³Á¤
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* ìë§‰ ì„¤ì • */}
+                  {/* ÀÚ¸· ¼³Á¤ */}
                   <div>
                     <label className="block text-sm font-medium text-green-200 mb-2">
-                      ğŸ’¬ ìë§‰ ì„¤ì •
+                      ?? ÀÚ¸· ¼³Á¤
                     </label>
                     <select
                       value={subtitleEnabled ? "on" : "off"}
@@ -2188,25 +2188,25 @@ const App: React.FC<ImageAppProps> = ({
                       }
                       className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-green-200 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     >
-                      <option value="off">ğŸš« ìë§‰ OFF (ê¸°ë³¸ê°’)</option>
-                      <option value="on">ğŸ“ ìë§‰ ON</option>
+                      <option value="off">?? ÀÚ¸· OFF (±âº»°ª)</option>
+                      <option value="on">?? ÀÚ¸· ON</option>
                     </select>
                     <p className="text-xs text-gray-400 mt-1">
-                      ìë§‰ í¬í•¨ ì—¬ë¶€ë¥¼ ì„ íƒí•˜ì„¸ìš”
+                      ÀÚ¸· Æ÷ÇÔ ¿©ºÎ¸¦ ¼±ÅÃÇÏ¼¼¿ä
                     </p>
                   </div>
 
-                  {/* ì´ë¯¸ì§€ ìˆ˜ ì„¤ì • */}
+                  {/* ÀÌ¹ÌÁö ¼ö ¼³Á¤ */}
                   <div>
                     <Slider
-                      label="ìƒì„±í•  ì´ë¯¸ì§€ ìˆ˜"
+                      label="»ı¼ºÇÒ ÀÌ¹ÌÁö ¼ö"
                       min={5}
                       max={20}
                       value={Math.min(imageCount, 20)}
                       onChange={(e) => setImageCount(parseInt(e.target.value))}
                     />
                     <p className="text-xs text-gray-400 mt-1">
-                      ì•ˆì •ì ì¸ ìƒì„±ì„ ìœ„í•´ ìµœëŒ€ 20ê°œë¡œ ì œí•œ
+                      ¾ÈÁ¤ÀûÀÎ »ı¼ºÀ» À§ÇØ ÃÖ´ë 20°³·Î Á¦ÇÑ
                     </p>
                   </div>
                 </div>
@@ -2227,26 +2227,26 @@ const App: React.FC<ImageAppProps> = ({
                   {isLoadingVideoSource ? (
                     <>
                       <Spinner size="sm" />{" "}
-                      <span className="ml-2">ì˜ìƒ ì†ŒìŠ¤ ìƒì„± ì¤‘...</span>
+                      <span className="ml-2">¿µ»ó ¼Ò½º »ı¼º Áß...</span>
                     </>
                   ) : (
-                    "ì˜ìƒ ì†ŒìŠ¤ ìƒì„±"
+                    "¿µ»ó ¼Ò½º »ı¼º"
                   )}
                 </button>
                 {characters.length === 0 && !referenceImage && (
                   <p className="text-yellow-400 text-sm mt-2">
-                    âš ï¸ ì˜ìƒ ì†ŒìŠ¤ë¥¼ ìƒì„±í•˜ë ¤ë©´ ìœ„ì—ì„œ í˜ë¥´ì†Œë‚˜ë¥¼ ë¨¼ì € ìƒì„±í•˜ê±°ë‚˜, ì°¸ì¡° ì´ë¯¸ì§€ë¥¼ ì—…ë¡œë“œí•´ì£¼ì„¸ìš”.
+                    ?? ¿µ»ó ¼Ò½º¸¦ »ı¼ºÇÏ·Á¸é À§¿¡¼­ Æä¸£¼Ò³ª¸¦ ¸ÕÀú »ı¼ºÇÏ°Å³ª, ÂüÁ¶ ÀÌ¹ÌÁö¸¦ ¾÷·ÎµåÇØÁÖ¼¼¿ä.
                   </p>
                 )}
               </div>
             </section>
 
-            {/* ì˜ìƒ ì†ŒìŠ¤ ìƒì„± ê´€ë ¨ ì˜¤ë¥˜ í‘œì‹œ */}
+            {/* ¿µ»ó ¼Ò½º »ı¼º °ü·Ã ¿À·ù Ç¥½Ã */}
             {error && (
               <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg">
                 <div className="flex items-start">
                   <span className="text-red-400 text-xl mr-3">
-                    {error.startsWith("âš ï¸") ? "âš ï¸" : "âŒ"}
+                    {error.startsWith("??") ? "??" : "?"}
                   </span>
                   <div className="flex-1">
                     <pre className="font-medium mb-2 whitespace-pre-wrap text-sm leading-relaxed">{error}</pre>
@@ -2259,20 +2259,20 @@ const App: React.FC<ImageAppProps> = ({
               <div className="text-center p-8">
                 <Spinner size="lg" />
                 <p className="mt-4 text-green-300 text-lg font-semibold">
-                  ì¥ë©´ì„ ë§Œë“¤ê³  ìˆìŠµë‹ˆë‹¤...
+                  Àå¸éÀ» ¸¸µé°í ÀÖ½À´Ï´Ù...
                 </p>
                 {loadingProgress && (
                   <div className="mt-4 bg-green-900/30 border border-green-500/50 rounded-lg p-4 max-w-md mx-auto">
                     <p className="text-green-300 font-bold text-lg animate-pulse">
-                      ğŸ¬ {loadingProgress}
+                      ?? {loadingProgress}
                     </p>
                   </div>
                 )}
                 <p className="mt-4 text-gray-400 text-sm">
-                  â³ API ê³¼ë¶€í•˜ ë°©ì§€ë¥¼ ìœ„í•´ ì´ë¯¸ì§€ ê°„ 3-4ì´ˆ ëŒ€ê¸° ì‹œê°„ì´ ìˆìŠµë‹ˆë‹¤.
+                  ? API °úºÎÇÏ ¹æÁö¸¦ À§ÇØ ÀÌ¹ÌÁö °£ 3-4ÃÊ ´ë±â ½Ã°£ÀÌ ÀÖ½À´Ï´Ù.
                 </p>
                 <p className="mt-2 text-gray-500 text-xs">
-                  ì´ ì‘ì—…ì€ ì‹œê°„ì´ ê±¸ë¦´ ìˆ˜ ìˆìŠµë‹ˆë‹¤. ì ì‹œë§Œ ê¸°ë‹¤ë ¤ ì£¼ì„¸ìš”.
+                  ÀÌ ÀÛ¾÷Àº ½Ã°£ÀÌ °É¸± ¼ö ÀÖ½À´Ï´Ù. Àá½Ã¸¸ ±â´Ù·Á ÁÖ¼¼¿ä.
                 </p>
               </div>
             )}
@@ -2280,8 +2280,8 @@ const App: React.FC<ImageAppProps> = ({
             {videoSource.length > 0 && (
               <section>
                 <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-                  <h2 className="text-2xl font-bold text-indigo-300">
-                    ìƒì„±ëœ ì˜ìƒ ì†ŒìŠ¤
+                  <h2 className="text-2xl font-bold text-blue-300">
+                    »ı¼ºµÈ ¿µ»ó ¼Ò½º
                   </h2>
                   <div className="flex gap-2">
                     <button
@@ -2297,10 +2297,10 @@ const App: React.FC<ImageAppProps> = ({
                       {isLoadingVideoSource ? (
                         <>
                           <Spinner size="sm" />
-                          <span className="ml-2">ìƒì„± ì¤‘...</span>
+                          <span className="ml-2">»ı¼º Áß...</span>
                         </>
                       ) : (
-                        "í•œ ë²ˆ ë” ìƒì„±"
+                        "ÇÑ ¹ø ´õ »ı¼º"
                       )}
                     </button>
                     <button
@@ -2311,10 +2311,10 @@ const App: React.FC<ImageAppProps> = ({
                       {isDownloading ? (
                         <>
                           <Spinner size="sm" />
-                          <span className="ml-2">ì••ì¶• ì¤‘...</span>
+                          <span className="ml-2">¾ĞÃà Áß...</span>
                         </>
                       ) : (
-                        "ëª¨ë“  ì´ë¯¸ì§€ ì €ì¥"
+                        "¸ğµç ÀÌ¹ÌÁö ÀúÀå"
                       )}
                     </button>
                   </div>
@@ -2331,41 +2331,41 @@ const App: React.FC<ImageAppProps> = ({
               </section>
             )}
 
-            {/* ê´‘ê³  3: ì˜ìƒ ì†ŒìŠ¤ ìƒì„±ê³¼ ì¹´ë©”ë¼ ì•µê¸€ ìƒì„± ì‚¬ì´ */}
+            {/* ±¤°í 3: ¿µ»ó ¼Ò½º »ı¼º°ú Ä«¸Ş¶ó ¾Ş±Û »ı¼º »çÀÌ */}
             <AdBanner />
 
-            {/* 4ë‹¨ê³„: ì¹´ë©”ë¼ ì•µê¸€ í™•ì¥ */}
+            {/* 4´Ü°è: Ä«¸Ş¶ó ¾Ş±Û È®Àå */}
             <section className="bg-gray-800 p-6 rounded-xl shadow-2xl border-2 border-orange-500">
               <h2 className="text-2xl font-bold mb-4 text-orange-400 flex items-center">
-                <span className="mr-2">3ï¸âƒ£</span>
-                ì‚¬ì§„ êµ¬ë„ í™•ì¥ (ìµœëŒ€ 6ê°€ì§€ ì•µê¸€)
+                <span className="mr-2">3??</span>
+                »çÁø ±¸µµ È®Àå (ÃÖ´ë 6°¡Áö ¾Ş±Û)
               </h2>
               <p className="text-orange-200 text-sm mb-4">
-                ì›í•˜ëŠ” ì•µê¸€ì„ ì„ íƒí•˜ì—¬ ë‹¤ì–‘í•œ êµ¬ë„ì˜ ì´ë¯¸ì§€ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+                ¿øÇÏ´Â ¾Ş±ÛÀ» ¼±ÅÃÇÏ¿© ´Ù¾çÇÑ ±¸µµÀÇ ÀÌ¹ÌÁö¸¦ »ı¼ºÇÕ´Ï´Ù.
               </p>
 
-              {/* ì¤‘ìš” ì•ˆë‚´ */}
+              {/* Áß¿ä ¾È³» */}
               <div className="mb-4 bg-blue-900/20 border border-blue-500/50 rounded-lg p-4">
                 <p className="text-blue-300 text-sm font-semibold mb-2">
-                  ğŸ¬ ì‘ë™ ë°©ì‹
+                  ?? ÀÛµ¿ ¹æ½Ä
                 </p>
                 <ul className="text-blue-200 text-xs space-y-1 list-disc list-inside">
-                  <li><strong>1ë‹¨ê³„:</strong> Gemini Vision AIê°€ ì—…ë¡œë“œí•œ ì´ë¯¸ì§€ë¥¼ ìƒì„¸íˆ ë¶„ì„ (í”¼ì‚¬ì²´, ì¡°ëª…, ìŠ¤íƒ€ì¼ ë“±)</li>
-                  <li><strong>2ë‹¨ê³„:</strong> ë¶„ì„ ê²°ê³¼ë¥¼ ë°”íƒ•ìœ¼ë¡œ ì„ íƒí•œ ì•µê¸€ë³„ë¡œ ì´ë¯¸ì§€ ì¬ìƒì„±</li>
-                  <li><strong>ëª©í‘œ:</strong> ë™ì¼í•œ í”¼ì‚¬ì²´ë¥¼ ë‹¤ì–‘í•œ ì¹´ë©”ë¼ ê°ë„ì—ì„œ í‘œí˜„</li>
-                  <li><strong>ìœ ì˜ì‚¬í•­:</strong> AI ì¬ìƒì„±ì´ë¯€ë¡œ 100% ë™ì¼í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŒ</li>
-                  <li><strong>ì²˜ë¦¬ ì‹œê°„:</strong> API ì œí•œìœ¼ë¡œ ì•µê¸€ë‹¹ 5-6ì´ˆ ì†Œìš” (6ê°œ ì„ íƒ ì‹œ ì•½ 30-40ì´ˆ)</li>
+                  <li><strong>1´Ü°è:</strong> Gemini Vision AI°¡ ¾÷·ÎµåÇÑ ÀÌ¹ÌÁö¸¦ »ó¼¼È÷ ºĞ¼® (ÇÇ»çÃ¼, Á¶¸í, ½ºÅ¸ÀÏ µî)</li>
+                  <li><strong>2´Ü°è:</strong> ºĞ¼® °á°ú¸¦ ¹ÙÅÁÀ¸·Î ¼±ÅÃÇÑ ¾Ş±Ûº°·Î ÀÌ¹ÌÁö Àç»ı¼º</li>
+                  <li><strong>¸ñÇ¥:</strong> µ¿ÀÏÇÑ ÇÇ»çÃ¼¸¦ ´Ù¾çÇÑ Ä«¸Ş¶ó °¢µµ¿¡¼­ Ç¥Çö</li>
+                  <li><strong>À¯ÀÇ»çÇ×:</strong> AI Àç»ı¼ºÀÌ¹Ç·Î 100% µ¿ÀÏÇÏÁö ¾ÊÀ» ¼ö ÀÖÀ½</li>
+                  <li><strong>Ã³¸® ½Ã°£:</strong> API Á¦ÇÑÀ¸·Î ¾Ş±Û´ç 5-6ÃÊ ¼Ò¿ä (6°³ ¼±ÅÃ ½Ã ¾à 30-40ÃÊ)</li>
                 </ul>
               </div>
 
-              {/* ì´ë¯¸ì§€ ì—…ë¡œë“œ ì„¹ì…˜ */}
+              {/* ÀÌ¹ÌÁö ¾÷·Îµå ¼½¼Ç */}
               <div className="mb-6 bg-orange-900/20 border border-orange-500/50 rounded-lg p-6">
                 <h3 className="text-orange-300 font-medium mb-3 flex items-center">
-                  <span className="mr-2">ğŸ“¸</span>
-                  ë¶„ì„í•  ì›ë³¸ ì´ë¯¸ì§€ ì—…ë¡œë“œ
+                  <span className="mr-2">??</span>
+                  ºĞ¼®ÇÒ ¿øº» ÀÌ¹ÌÁö ¾÷·Îµå
                 </h3>
                 <p className="text-orange-200 text-sm mb-3">
-                  ì´ë¯¸ì§€ë¥¼ ì—…ë¡œë“œí•˜ë©´ AIê°€ ìƒì„¸íˆ ë¶„ì„í•œ í›„, ì„ íƒí•œ ì¹´ë©”ë¼ ì•µê¸€ë¡œ ì¬ìƒì„±í•©ë‹ˆë‹¤.
+                  ÀÌ¹ÌÁö¸¦ ¾÷·ÎµåÇÏ¸é AI°¡ »ó¼¼È÷ ºĞ¼®ÇÑ ÈÄ, ¼±ÅÃÇÑ Ä«¸Ş¶ó ¾Ş±Û·Î Àç»ı¼ºÇÕ´Ï´Ù.
                 </p>
 
                 {!cameraAngleSourceImage ? (
@@ -2381,15 +2381,15 @@ const App: React.FC<ImageAppProps> = ({
                       htmlFor="cameraAngleImageInput"
                       className="cursor-pointer flex flex-col items-center space-y-2 hover:text-orange-300 transition-colors"
                     >
-                      <div className="text-3xl">ğŸ¬</div>
+                      <div className="text-3xl">??</div>
                       <div className="text-orange-300 font-medium">
-                        ì›ë³¸ ì´ë¯¸ì§€ ì—…ë¡œë“œ
+                        ¿øº» ÀÌ¹ÌÁö ¾÷·Îµå
                       </div>
                       <div className="text-orange-400 text-sm">
-                        í´ë¦­í•˜ì—¬ ì´ë¯¸ì§€ë¥¼ ì„ íƒí•˜ì„¸ìš”
+                        Å¬¸¯ÇÏ¿© ÀÌ¹ÌÁö¸¦ ¼±ÅÃÇÏ¼¼¿ä
                       </div>
                       <div className="text-orange-300 text-xs mt-2">
-                        JPG, PNG, WEBP í˜•ì‹ ì§€ì› (ìµœëŒ€ 10MB)
+                        JPG, PNG, WEBP Çü½Ä Áö¿ø (ÃÖ´ë 10MB)
                       </div>
                     </label>
                   </div>
@@ -2398,12 +2398,12 @@ const App: React.FC<ImageAppProps> = ({
                     <div className="flex items-center space-x-4">
                       <img
                         src={cameraAngleSourceImage}
-                        alt="ì¹´ë©”ë¼ ì•µê¸€ ì›ë³¸ ì´ë¯¸ì§€"
+                        alt="Ä«¸Ş¶ó ¾Ş±Û ¿øº» ÀÌ¹ÌÁö"
                         className="w-20 h-20 object-cover rounded-lg border-2 border-orange-400"
                       />
                       <div className="flex-1">
-                        <p className="text-orange-300 font-medium">ì›ë³¸ ì´ë¯¸ì§€ ì—…ë¡œë“œ ì™„ë£Œ</p>
-                        <p className="text-orange-400 text-sm">10ê°€ì§€ ì•µê¸€ë¡œ ë³€í™˜í•  ì¤€ë¹„ê°€ ë˜ì—ˆìŠµë‹ˆë‹¤</p>
+                        <p className="text-orange-300 font-medium">¿øº» ÀÌ¹ÌÁö ¾÷·Îµå ¿Ï·á</p>
+                        <p className="text-orange-400 text-sm">10°¡Áö ¾Ş±Û·Î º¯È¯ÇÒ ÁØºñ°¡ µÇ¾ú½À´Ï´Ù</p>
                       </div>
                       <button
                         onClick={() => {
@@ -2413,27 +2413,27 @@ const App: React.FC<ImageAppProps> = ({
                         }}
                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-semibold"
                       >
-                        ì‚­ì œ
+                        »èÁ¦
                       </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* ì•µê¸€ ì„ íƒ ì„¹ì…˜ */}
+              {/* ¾Ş±Û ¼±ÅÃ ¼½¼Ç */}
               <div className="mb-6 bg-orange-900/20 border border-orange-500/50 rounded-lg p-6">
                 <h3 className="text-orange-300 font-medium mb-3 flex items-center">
-                  <span className="mr-2">âœ…</span>
-                  ìƒì„±í•  ì•µê¸€ ì„ íƒ ({selectedCameraAngles.length}/6)
+                  <span className="mr-2">?</span>
+                  »ı¼ºÇÒ ¾Ş±Û ¼±ÅÃ ({selectedCameraAngles.length}/6)
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: 'Front View' as CameraAngle, label: 'ì •ë©´', emoji: 'ğŸ‘¤', direction: '' },
-                    { value: 'Right Side View' as CameraAngle, label: 'ì˜¤ë¥¸ìª½ ì¸¡ë©´', emoji: 'ğŸ‘‰', direction: '(ì™¼ìª½ì„ ë°”ë¼ë´„)' },
-                    { value: 'Left Side View' as CameraAngle, label: 'ì™¼ìª½ ì¸¡ë©´', emoji: 'ğŸ‘ˆ', direction: '(ì˜¤ë¥¸ìª½ì„ ë°”ë¼ë´„)' },
-                    { value: 'Back View' as CameraAngle, label: 'ë’·ëª¨ìŠµ', emoji: 'ğŸ”™', direction: '' },
-                    { value: 'Full Body' as CameraAngle, label: 'ì „ì‹ ', emoji: 'ğŸ§', direction: '' },
-                    { value: 'Close-up Face' as CameraAngle, label: 'ì–¼êµ´ ê·¼ì ‘', emoji: 'ğŸ˜Š', direction: '' },
+                    { value: 'Front View' as CameraAngle, label: 'Á¤¸é', emoji: '??', direction: '' },
+                    { value: 'Right Side View' as CameraAngle, label: '¿À¸¥ÂÊ Ãø¸é', emoji: '??', direction: '(¿ŞÂÊÀ» ¹Ù¶óº½)' },
+                    { value: 'Left Side View' as CameraAngle, label: '¿ŞÂÊ Ãø¸é', emoji: '??', direction: '(¿À¸¥ÂÊÀ» ¹Ù¶óº½)' },
+                    { value: 'Back View' as CameraAngle, label: 'µŞ¸ğ½À', emoji: '??', direction: '' },
+                    { value: 'Full Body' as CameraAngle, label: 'Àü½Å', emoji: '??', direction: '' },
+                    { value: 'Close-up Face' as CameraAngle, label: '¾ó±¼ ±ÙÁ¢', emoji: '??', direction: '' },
                   ].map((angle) => (
                     <label
                       key={angle.value}
@@ -2472,21 +2472,21 @@ const App: React.FC<ImageAppProps> = ({
                     ])}
                     className="px-3 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700"
                   >
-                    ì „ì²´ ì„ íƒ
+                    ÀüÃ¼ ¼±ÅÃ
                   </button>
                   <button
                     onClick={() => setSelectedCameraAngles([])}
                     className="px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700"
                   >
-                    ì „ì²´ í•´ì œ
+                    ÀüÃ¼ ÇØÁ¦
                   </button>
                 </div>
               </div>
 
-              {/* ë¹„ìœ¨ ì„ íƒ */}
+              {/* ºñÀ² ¼±ÅÃ */}
               <div className="mb-4">
                 <label className="block text-orange-300 text-sm mb-2 font-semibold">
-                  ğŸ“ ìƒì„±í•  ì´ë¯¸ì§€ ë¹„ìœ¨
+                  ?? »ı¼ºÇÒ ÀÌ¹ÌÁö ºñÀ²
                 </label>
                 <AspectRatioSelector
                   selectedRatio={aspectRatio}
@@ -2494,7 +2494,7 @@ const App: React.FC<ImageAppProps> = ({
                 />
               </div>
 
-              {/* ìƒì„± ë²„íŠ¼ - ë¡œë”© ì¤‘ì´ ì•„ë‹ ë•Œë§Œ í‘œì‹œ */}
+              {/* »ı¼º ¹öÆ° - ·Îµù ÁßÀÌ ¾Æ´Ò ¶§¸¸ Ç¥½Ã */}
               {!isLoadingCameraAngles && (
                 <>
                   <button
@@ -2506,18 +2506,18 @@ const App: React.FC<ImageAppProps> = ({
                         : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl transform hover:scale-105"
                     }`}
                   >
-                    ğŸ¬ ì„ íƒí•œ {selectedCameraAngles.length}ê°€ì§€ ì•µê¸€ ìƒì„±í•˜ê¸°
+                    ?? ¼±ÅÃÇÑ {selectedCameraAngles.length}°¡Áö ¾Ş±Û »ı¼ºÇÏ±â
                   </button>
 
                   {!apiKey && (
                     <p className="text-yellow-400 text-sm mt-2">
-                      âš ï¸ ì„œë²„ API í‚¤ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê´€ë¦¬ìì—ê²Œ ë¬¸ì˜í•´ì£¼ì„¸ìš”.
+                      ?? ¼­¹ö API Å°°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ü¸®ÀÚ¿¡°Ô ¹®ÀÇÇØÁÖ¼¼¿ä.
                     </p>
                   )}
                 </>
               )}
 
-              {/* ë¡œë”© ì¤‘ ì§„í–‰ ìƒí™© í‘œì‹œ - ì£¼í™©ìƒ‰ ë°•ìŠ¤ë§Œ í‘œì‹œ */}
+              {/* ·Îµù Áß ÁøÇà »óÈ² Ç¥½Ã - ÁÖÈ²»ö ¹Ú½º¸¸ Ç¥½Ã */}
               {isLoadingCameraAngles && cameraAngleProgress && (
                 <div className="mt-6">
                   <div className="bg-gradient-to-br from-orange-900/40 to-orange-800/30 border-2 border-orange-500 rounded-xl p-8 shadow-2xl">
@@ -2525,20 +2525,20 @@ const App: React.FC<ImageAppProps> = ({
                       <Spinner size="lg" />
                       <div className="text-center">
                         <p className="text-orange-300 font-bold text-2xl animate-pulse">
-                          ğŸ¬ {cameraAngleProgress}
+                          ?? {cameraAngleProgress}
                         </p>
                         <p className="mt-3 text-orange-400 text-base">
-                          â³ ì•µê¸€ ê°„ 5-6ì´ˆ ëŒ€ê¸° (API í• ë‹¹ëŸ‰ ë³´í˜¸)
+                          ? ¾Ş±Û °£ 5-6ÃÊ ´ë±â (API ÇÒ´ç·® º¸È£)
                         </p>
                         <p className="mt-2 text-orange-500 text-sm">
-                          ì„ íƒí•œ {selectedCameraAngles.length}ê°€ì§€ ì•µê¸€ ìƒì„±ì—ëŠ” ì•½ {Math.ceil(selectedCameraAngles.length * 6 / 60)}ë¶„ ì†Œìš”
+                          ¼±ÅÃÇÑ {selectedCameraAngles.length}°¡Áö ¾Ş±Û »ı¼º¿¡´Â ¾à {Math.ceil(selectedCameraAngles.length * 6 / 60)}ºĞ ¼Ò¿ä
                         </p>
                         <div className="mt-4 bg-orange-950/50 rounded-lg p-3">
                           <p className="text-orange-300 text-xs">
-                            ğŸ’¡ ìƒì„± ì¤‘ì—ëŠ” ë¸Œë¼ìš°ì €ë¥¼ ë‹«ì§€ ë§ˆì„¸ìš”
+                            ?? »ı¼º Áß¿¡´Â ºê¶ó¿ìÀú¸¦ ´İÁö ¸¶¼¼¿ä
                           </p>
                           <p className="text-orange-400 text-xs mt-1">
-                            âš ï¸ í• ë‹¹ëŸ‰ ì´ˆê³¼ ì‹œ ìƒì„±ëœ ì´ë¯¸ì§€ë§Œ ì €ì¥ë©ë‹ˆë‹¤
+                            ?? ÇÒ´ç·® ÃÊ°ú ½Ã »ı¼ºµÈ ÀÌ¹ÌÁö¸¸ ÀúÀåµË´Ï´Ù
                           </p>
                         </div>
                       </div>
@@ -2547,7 +2547,7 @@ const App: React.FC<ImageAppProps> = ({
                 </div>
               )}
 
-              {/* ì—ëŸ¬ ë©”ì‹œì§€ */}
+              {/* ¿¡·¯ ¸Ş½ÃÁö */}
               {cameraAngleError && !isLoadingCameraAngles && (
                 <div className="mt-4 p-4 bg-red-900/30 border border-red-600 rounded-lg">
                   <pre className="text-red-400 text-sm whitespace-pre-wrap font-mono">
@@ -2556,12 +2556,12 @@ const App: React.FC<ImageAppProps> = ({
                 </div>
               )}
 
-              {/* ìƒì„±ëœ ì¹´ë©”ë¼ ì•µê¸€ ê²°ê³¼ ê·¸ë¦¬ë“œ */}
+              {/* »ı¼ºµÈ Ä«¸Ş¶ó ¾Ş±Û °á°ú ±×¸®µå */}
               {cameraAngles.length > 0 && !isLoadingCameraAngles && (
                 <div className="mt-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-orange-300">
-                      ğŸ¬ ìƒì„±ëœ ì¹´ë©”ë¼ ì•µê¸€ ({cameraAngles.length}ê°œ)
+                      ?? »ı¼ºµÈ Ä«¸Ş¶ó ¾Ş±Û ({cameraAngles.length}°³)
                     </h3>
                     <button
                       onClick={async () => {
@@ -2586,7 +2586,7 @@ const App: React.FC<ImageAppProps> = ({
                                     suggestedName: fileName,
                                     types: [
                                       {
-                                        description: 'ì´ë¯¸ì§€ íŒŒì¼',
+                                        description: 'ÀÌ¹ÌÁö ÆÄÀÏ',
                                         accept: {
                                           'image/png': ['.png'],
                                         },
@@ -2601,7 +2601,7 @@ const App: React.FC<ImageAppProps> = ({
                                 } catch (err: any) {
                                   if (err.name === 'AbortError') {
                                     cancelCount++;
-                                    console.log(`[${index + 1}/${cameraAngles.length}] ì‚¬ìš©ìê°€ ì €ì¥ì„ ì·¨ì†Œí–ˆìŠµë‹ˆë‹¤.`);
+                                    console.log(`[${index + 1}/${cameraAngles.length}] »ç¿ëÀÚ°¡ ÀúÀåÀ» Ãë¼ÒÇß½À´Ï´Ù.`);
                                   } else {
                                     throw err;
                                   }
@@ -2618,29 +2618,29 @@ const App: React.FC<ImageAppProps> = ({
                                 await new Promise(resolve => setTimeout(resolve, 300));
                               }
                             } catch (err) {
-                              console.error(`[ê°œë°œììš©] ì¹´ë©”ë¼ ì•µê¸€ ${index + 1} ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:`, err);
+                              console.error(`[°³¹ßÀÚ¿ë] Ä«¸Ş¶ó ¾Ş±Û ${index + 1} ´Ù¿î·Îµå ¿À·ù:`, err);
                               throw err;
                             }
                           }
                           
                           if (successCount > 0) {
-                            setCameraAngleError(`âœ… ${successCount}ê°œì˜ ì¹´ë©”ë¼ ì•µê¸€ì´ ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤!` + 
-                                    (cancelCount > 0 ? ` (${cancelCount}ê°œ ì·¨ì†Œë¨)` : ''));
+                            setCameraAngleError(`? ${successCount}°³ÀÇ Ä«¸Ş¶ó ¾Ş±ÛÀÌ ÀúÀåµÇ¾ú½À´Ï´Ù!` + 
+                                    (cancelCount > 0 ? ` (${cancelCount}°³ Ãë¼ÒµÊ)` : ''));
                           } else if (cancelCount > 0) {
-                            setCameraAngleError(`ëª¨ë“  ë‹¤ìš´ë¡œë“œê°€ ì·¨ì†Œë˜ì—ˆìŠµë‹ˆë‹¤.`);
+                            setCameraAngleError(`¸ğµç ´Ù¿î·Îµå°¡ Ãë¼ÒµÇ¾ú½À´Ï´Ù.`);
                           }
                         } catch (error) {
-                          console.error("[ê°œë°œììš©] ì¹´ë©”ë¼ ì•µê¸€ ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:", error);
+                          console.error("[°³¹ßÀÚ¿ë] Ä«¸Ş¶ó ¾Ş±Û ´Ù¿î·Îµå ¿À·ù:", error);
                           
-                          let userMessage = "ì¹´ë©”ë¼ ì•µê¸€ ë‹¤ìš´ë¡œë“œì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤. ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.";
+                          let userMessage = "Ä«¸Ş¶ó ¾Ş±Û ´Ù¿î·Îµå¿¡ ½ÇÆĞÇß½À´Ï´Ù. ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.";
                           
                           if (error instanceof Error) {
-                            console.error(`[ê°œë°œììš©] ì˜¤ë¥˜ ìƒì„¸: ${error.name} - ${error.message}`);
+                            console.error(`[°³¹ßÀÚ¿ë] ¿À·ù »ó¼¼: ${error.name} - ${error.message}`);
                             
                             if (error.name === 'NotAllowedError') {
-                              userMessage = "íŒŒì¼ ì €ì¥ ê¶Œí•œì´ ê±°ë¶€ë˜ì—ˆìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì € ì„¤ì •ì„ í™•ì¸í•´ ì£¼ì„¸ìš”.";
+                              userMessage = "ÆÄÀÏ ÀúÀå ±ÇÇÑÀÌ °ÅºÎµÇ¾ú½À´Ï´Ù. ºê¶ó¿ìÀú ¼³Á¤À» È®ÀÎÇØ ÁÖ¼¼¿ä.";
                             } else if (error.name === 'SecurityError') {
-                              userMessage = "ë³´ì•ˆ ë¬¸ì œë¡œ íŒŒì¼ì„ ì €ì¥í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ë¸Œë¼ìš°ì €ë¥¼ ì—…ë°ì´íŠ¸í•˜ê±°ë‚˜ ë‹¤ë¥¸ ë¸Œë¼ìš°ì €ë¥¼ ì‚¬ìš©í•´ ì£¼ì„¸ìš”.";
+                              userMessage = "º¸¾È ¹®Á¦·Î ÆÄÀÏÀ» ÀúÀåÇÒ ¼ö ¾ø½À´Ï´Ù. ºê¶ó¿ìÀú¸¦ ¾÷µ¥ÀÌÆ®ÇÏ°Å³ª ´Ù¸¥ ºê¶ó¿ìÀú¸¦ »ç¿ëÇØ ÁÖ¼¼¿ä.";
                             }
                           }
                           
@@ -2649,11 +2649,11 @@ const App: React.FC<ImageAppProps> = ({
                       }}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
                     >
-                      ğŸ“¥ ì „ì²´ ë‹¤ìš´ë¡œë“œ ({cameraAngles.length}ê°œ)
+                      ?? ÀüÃ¼ ´Ù¿î·Îµå ({cameraAngles.length}°³)
                     </button>
                   </div>
 
-                  {/* 4ì—´ x 5í–‰ ê·¸ë¦¬ë“œ */}
+                  {/* 4¿­ x 5Çà ±×¸®µå */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {cameraAngles.map((angleImg) => (
                       <div
@@ -2666,8 +2666,8 @@ const App: React.FC<ImageAppProps> = ({
                             alt={angleImg.angleName}
                             className="w-full h-full object-cover cursor-pointer"
                             onClick={() => {
-                              // ìƒˆì°½ìœ¼ë¡œ ì´ë¯¸ì§€ ì—´ê¸°
-                              openImageInNewWindow(angleImg.image, `ì¹´ë©”ë¼ ì•µê¸€ - ${angleImg.angleName}`);
+                              // »õÃ¢À¸·Î ÀÌ¹ÌÁö ¿­±â
+                              openImageInNewWindow(angleImg.image, `Ä«¸Ş¶ó ¾Ş±Û - ${angleImg.angleName}`);
                             }}
                           />
                         </div>
@@ -2681,18 +2681,18 @@ const App: React.FC<ImageAppProps> = ({
                           <button
                             onClick={async () => {
                               try {
-                                // Base64ë¥¼ Blobìœ¼ë¡œ ë³€í™˜
+                                // Base64¸¦ BlobÀ¸·Î º¯È¯
                                 const response = await fetch(angleImg.image);
                                 const blob = await response.blob();
                                 
-                                // File System Access API ì§€ì› í™•ì¸
+                                // File System Access API Áö¿ø È®ÀÎ
                                 if ('showSaveFilePicker' in window) {
                                   try {
                                     const handle = await (window as any).showSaveFilePicker({
-                                      suggestedName: `ì¹´ë©”ë¼-ì•µê¸€-${angleImg.angleName}.jpg`,
+                                      suggestedName: `Ä«¸Ş¶ó-¾Ş±Û-${angleImg.angleName}.jpg`,
                                       types: [
                                         {
-                                          description: 'ì´ë¯¸ì§€ íŒŒì¼',
+                                          description: 'ÀÌ¹ÌÁö ÆÄÀÏ',
                                           accept: {
                                             'image/jpeg': ['.jpg', '.jpeg'],
                                           },
@@ -2709,22 +2709,22 @@ const App: React.FC<ImageAppProps> = ({
                                     }
                                   }
                                 } else {
-                                  // í´ë°±: ê¸°ì¡´ ë‹¤ìš´ë¡œë“œ ë°©ì‹
+                                  // Æú¹é: ±âÁ¸ ´Ù¿î·Îµå ¹æ½Ä
                                   const link = document.createElement('a');
                                   link.href = URL.createObjectURL(blob);
-                                  link.download = `ì¹´ë©”ë¼-ì•µê¸€-${angleImg.angleName}.jpg`;
+                                  link.download = `Ä«¸Ş¶ó-¾Ş±Û-${angleImg.angleName}.jpg`;
                                   document.body.appendChild(link);
                                   link.click();
                                   document.body.removeChild(link);
                                   URL.revokeObjectURL(link.href);
                                 }
                               } catch (error) {
-                                console.error("[ê°œë°œììš©] ì´ë¯¸ì§€ ë‹¤ìš´ë¡œë“œ ì˜¤ë¥˜:", error);
+                                console.error("[°³¹ßÀÚ¿ë] ÀÌ¹ÌÁö ´Ù¿î·Îµå ¿À·ù:", error);
                               }
                             }}
                             className="w-full py-2 bg-orange-600 text-white rounded text-xs font-semibold hover:bg-orange-700 transition-colors"
                           >
-                            ğŸ’¾ ë‹¤ìš´ë¡œë“œ
+                            ?? ´Ù¿î·Îµå
                           </button>
                         </div>
                       </div>
@@ -2734,33 +2734,33 @@ const App: React.FC<ImageAppProps> = ({
               )}
             </section>
 
-            {/* ì˜ìƒ ì œì‘ ë„êµ¬ ë°°ë„ˆ */}
+            {/* ¿µ»ó Á¦ÀÛ µµ±¸ ¹è³Ê */}
             <section className="my-8">
-              <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-lg shadow-lg text-center">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-lg shadow-lg text-center">
                 <h3 className="text-xl font-bold mb-2">
-                  ğŸ¬ ë” ë§ì€ ì˜ìƒ ì œì‘ ë„êµ¬ê°€ í•„ìš”í•˜ì‹ ê°€ìš”?
+                  ?? ´õ ¸¹Àº ¿µ»ó Á¦ÀÛ µµ±¸°¡ ÇÊ¿äÇÏ½Å°¡¿ä?
                 </h3>
                 <p className="mb-4">
-                  í”„ë¡œí˜ì…”ë„í•œ ì˜ìƒ í¸ì§‘ê³¼ íš¨ê³¼ë¥¼ ìœ„í•œ ë„êµ¬ë“¤ì„ í™•ì¸í•´ë³´ì„¸ìš”!
+                  ÇÁ·ÎÆä¼Å³ÎÇÑ ¿µ»ó ÆíÁı°ú È¿°ú¸¦ À§ÇÑ µµ±¸µéÀ» È®ÀÎÇØº¸¼¼¿ä!
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <a
                     href="https://youtube.money-hotissue.com"
-                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transform hover:scale-105 transition-all shadow-md hover:shadow-xl cursor-pointer"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all shadow-md hover:shadow-xl cursor-pointer"
                   >
-                    ğŸ“ˆ ë–¡ìƒí•œ ëŒ€ë³¸ 1ë¶„ ì¹´í”¼
+                    ?? ¶±»óÇÑ ´ëº» 1ºĞ Ä«ÇÇ
                   </a>
                   <a
                     href="https://aimusic.money-hotissue.com/"
-                    className="px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg font-semibold hover:from-pink-600 hover:to-pink-700 transform hover:scale-105 transition-all shadow-md hover:shadow-xl cursor-pointer"
+                    className="px-6 py-3 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-lg font-semibold hover:from-sky-600 hover:to-sky-700 transform hover:scale-105 transition-all shadow-md hover:shadow-xl cursor-pointer"
                   >
-                    ğŸµ AI ìŒì•… ê°€ì‚¬ 1ì´ˆ ì™„ì„±
+                    ?? AI À½¾Ç °¡»ç 1ÃÊ ¿Ï¼º
                   </a>
                   <a
                     href="https://aimusic.money-hotissue.com/"
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-indigo-600 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-md hover:shadow-xl cursor-pointer"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-indigo-600 hover:to-indigo-700 transform hover:scale-105 transition-all shadow-md hover:shadow-xl cursor-pointer"
                   >
-                    ğŸ¨ AI ìŒì•… ì¸ë„¤ì¼ ì œì‘
+                    ?? AI À½¾Ç ½æ³×ÀÏ Á¦ÀÛ
                   </a>
                 </div>
               </div>
@@ -2771,9 +2771,9 @@ const App: React.FC<ImageAppProps> = ({
           <footer className="mt-16 py-8 border-t border-gray-700">
             <div className="max-w-4xl mx-auto px-4">
               <div className="text-center space-y-4">
-                {/* ì €ì‘ê¶Œ í‘œì‹œ */}
+                {/* ÀúÀÛ±Ç Ç¥½Ã */}
                 <p className="text-gray-500 text-sm">
-                  Â© {new Date().getFullYear()} ìœ íŠœë¸Œ ë¡±í¼ ì´ë¯¸ì§€ ìƒì„±ê¸°. ëª¨ë“  ê¶Œë¦¬ ë³´ìœ .
+                  ¨Ï {new Date().getFullYear()} À¯Æ©ºê ·ÕÆû ÀÌ¹ÌÁö »ı¼º±â. ¸ğµç ±Ç¸® º¸À¯.
                 </p>
               </div>
             </div>
@@ -2782,11 +2782,11 @@ const App: React.FC<ImageAppProps> = ({
       </div>
       <FloatingBottomAd />
 
-      {/* ì´ˆê¸°í™” ë²„íŠ¼ - ì˜¤ë¥¸ìª½ í•˜ë‹¨ ê³ ì • */}
+      {/* ÃÊ±âÈ­ ¹öÆ° - ¿À¸¥ÂÊ ÇÏ´Ü °íÁ¤ */}
       <button
         onClick={handleResetAll}
         className="fixed bottom-24 right-6 z-[10000] px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center gap-2 border-2 border-red-500"
-        title="ëª¨ë“  ì‘ì—… ë°ì´í„° ì´ˆê¸°í™”"
+        title="¸ğµç ÀÛ¾÷ µ¥ÀÌÅÍ ÃÊ±âÈ­"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -2800,13 +2800,14 @@ const App: React.FC<ImageAppProps> = ({
             clipRule="evenodd"
           />
         </svg>
-        ì´ˆê¸°í™”
+        ÃÊ±âÈ­
       </button>
     </>
   );
 };
 
 export default App;
+
 
 
 

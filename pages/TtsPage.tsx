@@ -1,0 +1,276 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+
+const STORAGE_KEYS = {
+  apiKey: "tts_api_key",
+  text: "tts_text",
+  voice: "tts_voice",
+  rate: "tts_rate",
+  pitch: "tts_pitch",
+  audio: "tts_audio",
+  error: "tts_error",
+};
+
+const getStoredString = (key: string, fallback = ""): string => {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch (error) {
+    console.error("TTS 로컬 저장값을 불러오지 못했습니다:", error);
+    return fallback;
+  }
+};
+
+const getStoredNumber = (key: string, fallback: number): number => {
+  const value = getStoredString(key, "");
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const setStoredValue = (key: string, value: string): void => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.error("TTS 로컬 저장값을 저장하지 못했습니다:", error);
+  }
+};
+
+const voiceOptions = [
+  { value: "ko-KR-Standard-A", label: "한국어 표준 여성 (A)" },
+  { value: "ko-KR-Standard-C", label: "한국어 표준 남성 (C)" },
+  { value: "ko-KR-Standard-D", label: "한국어 표준 여성 (D)" },
+  { value: "en-US-Standard-C", label: "영어 표준 여성 (C)" },
+];
+
+const TtsPage: React.FC = () => {
+  const [apiKey, setApiKey] = useState(() => getStoredString(STORAGE_KEYS.apiKey));
+  const [text, setText] = useState(() => getStoredString(STORAGE_KEYS.text));
+  const [voice, setVoice] = useState(() =>
+    getStoredString(STORAGE_KEYS.voice, "ko-KR-Standard-A")
+  );
+  const [speakingRate, setSpeakingRate] = useState(() =>
+    getStoredNumber(STORAGE_KEYS.rate, 1)
+  );
+  const [pitch, setPitch] = useState(() => getStoredNumber(STORAGE_KEYS.pitch, 0));
+  const [audioSrc, setAudioSrc] = useState(() => getStoredString(STORAGE_KEYS.audio));
+  const [error, setError] = useState(() => getStoredString(STORAGE_KEYS.error));
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const languageCode = useMemo(() => {
+    const match = voice.match(/^[a-z]{2}-[A-Z]{2}/);
+    return match ? match[0] : "ko-KR";
+  }, [voice]);
+
+  useEffect(() => setStoredValue(STORAGE_KEYS.apiKey, apiKey), [apiKey]);
+  useEffect(() => setStoredValue(STORAGE_KEYS.text, text), [text]);
+  useEffect(() => setStoredValue(STORAGE_KEYS.voice, voice), [voice]);
+  useEffect(() => setStoredValue(STORAGE_KEYS.rate, String(speakingRate)), [speakingRate]);
+  useEffect(() => setStoredValue(STORAGE_KEYS.pitch, String(pitch)), [pitch]);
+  useEffect(() => setStoredValue(STORAGE_KEYS.audio, audioSrc), [audioSrc]);
+  useEffect(() => setStoredValue(STORAGE_KEYS.error, error), [error]);
+
+  const handleReset = () => {
+    setApiKey("");
+    setText("");
+    setVoice("ko-KR-Standard-A");
+    setSpeakingRate(1);
+    setPitch(0);
+    setAudioSrc("");
+    setError("");
+  };
+
+  const handleGenerate = async () => {
+    if (!apiKey.trim()) {
+      setError("Google AI Studio API 키를 입력해 주세요.");
+      return;
+    }
+    if (!text.trim()) {
+      setError("변환할 텍스트를 입력해 주세요.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey,
+          text,
+          voice,
+          speakingRate,
+          pitch,
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        const message =
+          payload?.message || "TTS 생성에 실패했습니다. API 키를 확인해 주세요.";
+        setError(message);
+        setAudioSrc("");
+        return;
+      }
+
+      if (!payload?.audioContent) {
+        setError("오디오 응답을 받지 못했습니다. 다시 시도해 주세요.");
+        setAudioSrc("");
+        return;
+      }
+
+      setAudioSrc(`data:audio/mp3;base64,${payload.audioContent}`);
+    } catch (err) {
+      console.error("TTS 요청 실패:", err);
+      setError("요청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setAudioSrc("");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-slate-950 to-emerald-900 text-white">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-12">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm text-emerald-200 hover:text-emerald-100"
+            >
+              ← 홈으로
+            </Link>
+            <h1 className="mt-3 text-3xl font-black sm:text-4xl">
+              TTS 음성 제작
+            </h1>
+            <p className="mt-3 text-sm text-emerald-100/80 sm:text-base">
+              Google AI Studio API 키로 텍스트를 음성으로 변환해 바로 저장하세요.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-full border border-emerald-400/40 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/30"
+          >
+            초기화
+          </button>
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-emerald-500/40 bg-emerald-950/40 p-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-emerald-200">
+                  Google AI Studio API 키
+                </label>
+                <input
+                  value={apiKey}
+                  onChange={(event) => setApiKey(event.target.value)}
+                  placeholder="API 키를 입력해 주세요"
+                  className="mt-2 w-full rounded-lg border border-emerald-500/40 bg-emerald-950/60 px-3 py-2 text-sm text-white placeholder:text-emerald-200/60 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-emerald-200">
+                  변환할 텍스트
+                </label>
+                <textarea
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                  placeholder="예) 여러분 안녕하세요. 오늘은..."
+                  rows={8}
+                  className="mt-2 w-full resize-y rounded-lg border border-emerald-500/40 bg-emerald-950/60 px-3 py-2 text-sm text-white placeholder:text-emerald-200/60 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-emerald-200">
+                  목소리 선택
+                </label>
+                <select
+                  value={voice}
+                  onChange={(event) => setVoice(event.target.value)}
+                  className="mt-2 w-full rounded-lg border border-emerald-500/40 bg-emerald-950/60 px-3 py-2 text-sm text-white focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                >
+                  {voiceOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-emerald-200">
+                  말하기 속도: {speakingRate.toFixed(2)}
+                </label>
+                <input
+                  type="range"
+                  min={0.7}
+                  max={1.3}
+                  step={0.05}
+                  value={speakingRate}
+                  onChange={(event) => setSpeakingRate(Number(event.target.value))}
+                  className="mt-3 w-full accent-emerald-400"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-emerald-200">
+                  음높이: {pitch.toFixed(1)}
+                </label>
+                <input
+                  type="range"
+                  min={-6}
+                  max={6}
+                  step={0.5}
+                  value={pitch}
+                  onChange={(event) => setPitch(Number(event.target.value))}
+                  className="mt-3 w-full accent-emerald-400"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="mt-2 w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-white shadow-[0_0_18px_rgba(16,185,129,0.35)] transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isGenerating ? "음성 생성 중..." : "TTS 생성하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mt-6 rounded-xl border border-red-500/60 bg-red-950/50 p-4 text-sm text-red-100">
+            {error}
+          </div>
+        )}
+
+        <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/40 p-6">
+          <h2 className="text-lg font-bold text-emerald-200">생성 결과</h2>
+          {audioSrc ? (
+            <div className="mt-4 space-y-4">
+              <audio controls className="w-full">
+                <source src={audioSrc} type="audio/mpeg" />
+              </audio>
+              <a
+                href={audioSrc}
+                download="youtube-factory-tts.mp3"
+                className="inline-flex items-center justify-center rounded-lg border border-emerald-400/50 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-500/30"
+              >
+                MP3 다운로드
+              </a>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-emerald-100/70">
+              아직 생성된 음성이 없습니다. 텍스트를 입력한 뒤 TTS 생성하기를 눌러주세요.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TtsPage;

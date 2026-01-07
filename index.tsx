@@ -12,6 +12,7 @@ import AdminPage from './pages/AdminPage.tsx';
 import DebugPage from './pages/DebugPage.tsx';
 import DownloadProgressPage from './pages/DownloadProgressPage.tsx';
 import DownloadPage from './pages/DownloadPage.tsx';
+import TtsPage from './pages/TtsPage.tsx';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -32,8 +33,10 @@ root.render(
         <Route path="/debug/" element={<Navigate to="/" replace />} />
         <Route path="/debug/script" element={<Navigate to="/script" replace />} />
         <Route path="/debug/image/*" element={<Navigate to="/image" replace />} />
+        <Route path="/debug/tts" element={<Navigate to="/tts" replace />} />
         <Route path="/download-progress" element={<DownloadProgressPage />} />
         <Route path="/download" element={<DownloadPage />} />
+        <Route path="/tts" element={<TtsPage />} />
         <Route
           path="/image/*"
           element={

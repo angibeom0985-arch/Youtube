@@ -9,6 +9,7 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
   const normalizedBasePath = basePath && basePath !== "/" ? basePath.replace(/\/$/, "") : "";
   const scriptPath = `${normalizedBasePath}/script` || "/script";
   const imagePath = `${normalizedBasePath}/image` || "/image";
+  const ttsPath = `${normalizedBasePath}/tts` || "/tts";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white">
@@ -25,7 +26,7 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
           </p>
         </div>
 
-        <div className="mt-10 grid w-full gap-6 sm:grid-cols-2">
+        <div className="mt-10 grid w-full gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             to={scriptPath}
             className="group rounded-2xl border border-rose-400/60 bg-gradient-to-br from-rose-500/35 via-rose-400/15 to-transparent p-6 transition duration-300 hover:-translate-y-1 hover:border-rose-300 hover:bg-rose-400/30"
@@ -61,6 +62,25 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
             </div>
             <div className="mt-6 text-sm font-semibold text-sky-100">
               이미지 생성 시작하기 -&gt;
+            </div>
+          </Link>
+
+          <Link
+            to={ttsPath}
+            className="group rounded-2xl border border-emerald-400/60 bg-gradient-to-br from-emerald-500/35 via-emerald-400/15 to-transparent p-6 transition duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:bg-emerald-400/30"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="mt-2 text-2xl font-bold">
+                  TTS 생성
+                </h2>
+                <p className="mt-3 text-sm text-slate-100/80">
+                  대본을 음성으로 변환해 나레이션을 빠르게 제작합니다.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 text-sm font-semibold text-emerald-100">
+              TTS 생성 시작하기 -&gt;
             </div>
           </Link>
         </div>
