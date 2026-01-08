@@ -1328,7 +1328,7 @@ const App: React.FC<AppProps> = ({ allowDevtools = false }) => {
       : "떡상할 제목을 입력하세요";
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white font-sans p-4 sm:p-8 pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-orange-950 via-black to-orange-900 text-white font-sans p-4 sm:p-8 pb-32">
       {/* 애드블럭 감지 */}
       <AdBlockDetector onAdBlockDetected={handleAdBlockDetected} />
 

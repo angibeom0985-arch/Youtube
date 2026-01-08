@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { enforceUsageLimit, recordUsageEvent } from "./_lib/usageLimit.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store");
@@ -23,17 +24,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  const apiKey = typeof body?.apiKey === "string" ? body.apiKey.trim() : "";
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   const voice = typeof body?.voice === "string" ? body.voice : "ko-KR-Standard-A";
   const speakingRate =
     typeof body?.speakingRate === "number" ? body.speakingRate : 1;
   const pitch = typeof body?.pitch === "number" ? body.pitch : 0;
+  const clientFingerprint =
+    typeof body?.client?.fingerprint === "string" ? body.client.fingerprint : null;
 
-  if (!apiKey || !text) {
+  if (!text) {
     res.status(400).json({ message: "missing_fields" });
     return;
   }
+
+  const apiKey =
+    process.env.GOOGLE_TTS_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    "";
+  if (!apiKey) {
+    res.status(500).json({ message: "missing_api_key" });
+    return;
+  }
+
+  const usage = await enforceUsageLimit(req, clientFingerprint);
+  if (!usage.allowed) {
+    if (usage.retryAfterSeconds) {
+      res.setHeader("Retry-After", usage.retryAfterSeconds.toString());
+    }
+    res.status(usage.status || 429).json({ message: usage.reason || "usage_limit" });
+    return;
+  }
+
+  await recordUsageEvent(req, "tts", clientFingerprint);
 
   const languageMatch = voice.match(/^[a-z]{2}-[A-Z]{2}/);
   const languageCode = languageMatch ? languageMatch[0] : "ko-KR";
