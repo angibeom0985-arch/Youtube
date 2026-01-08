@@ -60,8 +60,13 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
                 </p>
               </div>
             </div>
-            <div className="mt-6 text-sm font-semibold text-[color:var(--tone-image-orange)]">
-              대본 생성 시작하기 -&gt;
+            <div className="mt-6 text-sm font-semibold">
+              <span
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-black"
+                style={{ backgroundColor: "var(--tone-image-orange)" }}
+              >
+                대본 생성 시작하기 -&gt;
+              </span>
             </div>
           </Link>
 
@@ -80,8 +85,13 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
                 </p>
               </div>
             </div>
-            <div className="mt-6 text-sm font-semibold text-[color:var(--tone-image-blue)]">
-              이미지 생성 시작하기 -&gt;
+            <div className="mt-6 text-sm font-semibold">
+              <span
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-black"
+                style={{ backgroundColor: "var(--tone-image-blue)" }}
+              >
+                이미지 생성 시작하기 -&gt;
+              </span>
             </div>
           </Link>
 
@@ -100,8 +110,13 @@ const HomePage: React.FC<HomePageProps> = ({ basePath = "" }) => {
                 </p>
               </div>
             </div>
-            <div className="mt-6 text-sm font-semibold text-[color:var(--tone-image-green)]">
-              TTS 생성 시작하기 -&gt;
+            <div className="mt-6 text-sm font-semibold">
+              <span
+                className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-black"
+                style={{ backgroundColor: "var(--tone-image-green)" }}
+              >
+                TTS 생성 시작하기 -&gt;
+              </span>
             </div>
           </Link>
         </div>
