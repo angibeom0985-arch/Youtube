@@ -52,3 +52,18 @@ export interface NewPlan {
   scriptOutline?: OutlineStage[];
   chapters?: Chapter[]; // 챕터 기반 개요
 }
+
+export interface Character {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+}
+
+export interface StoryboardImage {
+  id: string;
+  image: string;
+  sceneDescription: string;
+}
+
+export type AspectRatio = "16:9" | "9:16" | "1:1";

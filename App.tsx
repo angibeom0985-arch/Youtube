@@ -29,6 +29,7 @@ import {
   generateChapterScript,
 } from "./services/chapterService";
 import { getVideoDetails } from "./services/youtubeService";
+import { fetchTranscript } from "./services/transcriptService";
 import type { VideoDetails } from "./services/youtubeService";
 import type {
   AnalysisResult,
@@ -208,6 +209,7 @@ const App: React.FC<AppProps> = ({ allowDevtools = false }) => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isGeneratingIdeas, setIsGeneratingIdeas] = useState<boolean>(false);
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+  const [isFetchingTranscript, setIsFetchingTranscript] = useState(false);
   // API 키 검증 로직 제거됨
   const [error, setError] = useState<string | null>(null);
 
@@ -696,6 +698,28 @@ const App: React.FC<AppProps> = ({ allowDevtools = false }) => {
     setSuggestedIdeas([]);
     setError(null);
   };
+
+  const handleFetchTranscript = useCallback(async () => {
+    const trimmedUrl = youtubeUrl.trim();
+    if (!trimmedUrl) {
+      setError("유튜브 URL을 먼저 입력해주세요.");
+      return;
+    }
+
+    setIsFetchingTranscript(true);
+    setError(null);
+    try {
+      const result = await fetchTranscript(trimmedUrl);
+      setTranscript(result.text);
+      setAnalysisResult(null);
+      setNewPlan(null);
+      setSuggestedIdeas([]);
+    } catch (err: any) {
+      setError(err?.message || "대본을 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setIsFetchingTranscript(false);
+    }
+  }, [youtubeUrl]);
 
   // 전체 초기화 함수
   const handleReset = () => {
@@ -1351,7 +1375,7 @@ const App: React.FC<AppProps> = ({ allowDevtools = false }) => {
           </p>
           <nav className="flex justify-center gap-3 flex-wrap">
             <a
-              href="/guide"
+              href="/script/guide"
               className="px-4 py-2 bg-gradient-to-br from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg transition-all border border-purple-500/50 text-sm font-medium shadow-lg shadow-purple-500/30"
             >
               📖 사용법
@@ -1451,6 +1475,19 @@ const App: React.FC<AppProps> = ({ allowDevtools = false }) => {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="mb-6 flex flex-wrap gap-3">
+              <button
+                onClick={handleFetchTranscript}
+                disabled={!youtubeUrl.trim() || isFetchingTranscript}
+                className="px-4 py-2 bg-gradient-to-br from-[#D90000] to-[#FF2B2B] text-white font-semibold rounded-md hover:from-[#D90000]/90 hover:to-[#FF2B2B]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                {isFetchingTranscript ? "대본 추출 중..." : "대본 추출"}
+              </button>
+              <p className="text-xs text-neutral-400 flex items-center">
+                유튜브 자막이 있는 영상만 추출됩니다.
+              </p>
             </div>
 
             <div className="mb-6">

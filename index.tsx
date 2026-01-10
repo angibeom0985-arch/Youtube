@@ -9,6 +9,9 @@ import ImageErrorBoundary from './image/components/ErrorBoundary';
 import HomePage from './pages/HomePage.tsx';
 import GuidePage from './pages/GuidePage.tsx';
 import ApiGuidePage from './pages/ApiGuidePage.tsx';
+import ScriptGuidePage from './pages/ScriptGuidePage.tsx';
+import ImageGuidePage from './pages/ImageGuidePage.tsx';
+import TtsGuidePage from './pages/TtsGuidePage.tsx';
 import AdminPage from './pages/AdminPage.tsx';
 import DebugPage from './pages/DebugPage.tsx';
 import DownloadProgressPage from './pages/DownloadProgressPage.tsx';
@@ -28,6 +31,9 @@ root.render(
         <Route path="/" element={<HomePage />} />
         <Route path="/script" element={<App />} />
         <Route path="/guide" element={<GuidePage />} />
+        <Route path="/script/guide" element={<ScriptGuidePage />} />
+        <Route path="/imgae/guide" element={<ImageGuidePage />} />
+        <Route path="/tts/guide" element={<TtsGuidePage />} />
         <Route path="/api-guide" element={<ApiGuidePage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/debug" element={<Navigate to="/" replace />} />

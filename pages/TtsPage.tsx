@@ -52,6 +52,7 @@ const TtsPage: React.FC = () => {
   const [audioSrc, setAudioSrc] = useState(() => getStoredString(STORAGE_KEYS.audio));
   const [error, setError] = useState(() => getStoredString(STORAGE_KEYS.error));
   const [isGenerating, setIsGenerating] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("");
 
 
   useEffect(() => setStoredValue(STORAGE_KEYS.text, text), [text]);
@@ -68,6 +69,7 @@ const TtsPage: React.FC = () => {
     setPitch(0);
     setAudioSrc("");
     setError("");
+    setCopyStatus("");
   };
 
   const handleGenerate = async () => {
@@ -97,22 +99,40 @@ const TtsPage: React.FC = () => {
           payload?.message || "TTS 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.";
         setError(message);
         setAudioSrc("");
+        setCopyStatus("");
         return;
       }
 
       if (!payload?.audioContent) {
         setError("오디오 응답을 받지 못했습니다. 다시 시도해 주세요.");
         setAudioSrc("");
+        setCopyStatus("");
         return;
       }
 
       setAudioSrc(`data:audio/mp3;base64,${payload.audioContent}`);
+      setCopyStatus("");
     } catch (err) {
       console.error("TTS 요청 실패:", err);
       setError("요청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
       setAudioSrc("");
+      setCopyStatus("");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCopyError = async () => {
+    if (!error) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(error);
+      setCopyStatus("오류 메시지가 복사되었습니다.");
+    } catch (copyError) {
+      console.error("오류 메시지 복사 실패:", copyError);
+      setCopyStatus("오류 메시지 복사에 실패했습니다.");
     }
   };
 
@@ -219,7 +239,22 @@ const TtsPage: React.FC = () => {
 
         {error && (
           <div className="mt-6 rounded-xl border border-red-500/60 bg-red-950/50 p-4 text-sm text-red-100">
-            {error}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-sm font-semibold text-red-100">오류 메시지</span>
+              <button
+                type="button"
+                onClick={handleCopyError}
+                className="rounded-full border border-red-400/60 bg-red-500/20 px-3 py-1 text-xs font-semibold text-red-100 transition hover:border-red-300 hover:bg-red-500/30"
+              >
+                복사
+              </button>
+            </div>
+            <pre className="mt-3 whitespace-pre-wrap break-words text-sm text-red-100">
+              {error}
+            </pre>
+            {copyStatus && (
+              <p className="mt-3 text-xs text-red-100/80">{copyStatus}</p>
+            )}
           </div>
         )}
 
